@@ -5,7 +5,7 @@ import {
   updateFunctionComponent,
   updateHostComponent,
   updateHostTextComponent,
-} from './ReactReconciler'
+} from './ReactFiberReconciler'
 import {
   ClassComponent,
   Fragment,
@@ -15,6 +15,13 @@ import {
 } from './ReactWorkTags'
 
 let wip: null | VnodeType = null //! work in progress
+let wipRoot: null | VnodeType = null
+
+//* 初次渲染和更新都执行该函数
+export function scheduleUpdateOnFiber(fiber: VnodeType) {
+  wip = fiber
+  wipRoot = fiber
+}
 
 //* 更新 Fiber 节点
 export function performUnitOfWork() {

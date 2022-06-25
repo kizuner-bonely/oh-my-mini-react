@@ -11,6 +11,8 @@ export default defineConfig({
       '@react': path.resolve(__dirname, './react'),
       '@type': path.resolve(__dirname, './react/types'),
       '@utils': path.resolve(__dirname, './utils.ts'),
+      '@src': path.resolve(__dirname, './src'),
+      '@react-dom': path.resolve(__dirname, './react-dom'),
     },
   },
 })

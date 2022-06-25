@@ -21,7 +21,11 @@
       "@react/*": ["./react/*"],
       "@type": ["./react/types"],
       "@type/*": ["./react/types/*"],
-      "@utils": ["./utils.ts"]
+      "@utils": ["./utils.ts"],
+      "@src": ["./src"],
+      "@src/*": ["./src/*"],
+      "@react-dom": ["./react-dom"],
+      "@react-dom/*": ["./react-dom/*"]
     }
   },
   "include": ["src", "react", "utils.ts"],
