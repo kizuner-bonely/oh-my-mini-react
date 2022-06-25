@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@commitlint/cli': ^17.0.3
   '@commitlint/config-conventional': ^17.0.3
+  '@types/node': ^18.0.0
   '@types/react': ^18.0.0
   '@types/react-dom': ^18.0.0
   '@typescript-eslint/eslint-plugin': ^5.29.0
@@ -29,6 +30,7 @@ dependencies:
 devDependencies:
   '@commitlint/cli': registry.npmmirror.com/@commitlint/cli/17.0.3
   '@commitlint/config-conventional': registry.npmmirror.com/@commitlint/config-conventional/17.0.3
+  '@types/node': registry.npmmirror.com/@types/node/18.0.0
   '@types/react': registry.npmmirror.com/@types/react/18.0.14
   '@types/react-dom': registry.npmmirror.com/@types/react-dom/18.0.5
   '@typescript-eslint/eslint-plugin': registry.npmmirror.com/@typescript-eslint/eslint-plugin/5.29.0_qqmbkyiaixvppdwswpytuf2hgm
