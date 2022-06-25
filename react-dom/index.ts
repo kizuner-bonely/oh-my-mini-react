@@ -27,6 +27,8 @@ class ReactDOMRoot {
 function updateContainer(element: VnodeType, container: Root) {
   const { containerInfo } = container
 
+  // 此处的 element 就是 <App />
+  // 第二个参数就是根据 document.getElementById('root') 生成的 Fiber
   const fiber = createFiber(element, {
     //! 重点
     type: containerInfo.nodeName.toLocaleLowerCase(),
@@ -42,6 +44,7 @@ function updateContainer(element: VnodeType, container: Root) {
     index: null,
   })
 
+  //* 将 <App /> 挂载到真实 DOM ( document.getElementById('root') ) 上
   scheduleUpdateOnFiber(fiber)
 }
 

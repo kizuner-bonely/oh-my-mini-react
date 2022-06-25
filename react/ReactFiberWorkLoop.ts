@@ -17,7 +17,7 @@ import {
 let wip: null | VnodeType = null //! work in progress
 let wipRoot: null | VnodeType = null
 
-//* 初次渲染和更新都执行该函数
+//* 将 Fiber 渲染到 DOM 上 ( 初次渲染和更新都执行该函数 )
 export function scheduleUpdateOnFiber(fiber: VnodeType) {
   wip = fiber
   wipRoot = fiber
