@@ -29,7 +29,7 @@ export function updateClassComponent(wip: FiberType) {
 }
 
 export function updateFragmentComponent(wip: FiberType) {
-  console.log('update fragment component')
+  reconcileChildren(wip, wip.props.children)
 }
 
 export function updateHostTextComponent(wip: FiberType) {

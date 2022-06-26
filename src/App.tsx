@@ -16,6 +16,8 @@ function App() {
 
       {/* @ts-ignore */}
       <ClassComponent name="类组件" />
+
+      <FragmentComponent />
     </div>
   )
 }
@@ -39,6 +41,16 @@ class ClassComponent extends Component {
       </div>
     )
   }
+}
+
+function FragmentComponent() {
+  return (
+    <div className="border">
+      <>
+        <p>fragment 1</p>
+      </>
+    </div>
+  )
 }
 
 export default App

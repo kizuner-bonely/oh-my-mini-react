@@ -3,6 +3,7 @@ import { isFn, isStr, isUndefined } from '@utils'
 import { Placement } from './Flags'
 import {
   ClassComponent,
+  Fragment,
   FunctionComponent,
   HostComponent,
   HostText,
@@ -33,6 +34,8 @@ export function createFiber(vnode: FiberType, returnFiber: FiberType) {
   } else if (isUndefined(type)) {
     fiber.tag = HostText
     fiber.props = { children: vnode }
+  } else {
+    fiber.tag = Fragment
   }
 
   return fiber
