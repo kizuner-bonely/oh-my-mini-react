@@ -14,6 +14,7 @@ import {
   HostComponent,
   HostText,
 } from './ReactWorkTags'
+import { scheduleCallback } from './scheduler'
 
 let wip: null | FiberType = null //! work in progress
 let wipRoot: null | FiberType = null
@@ -64,11 +65,13 @@ export function performUnitOfWork() {
 export function scheduleUpdateOnFiber(fiber: FiberType) {
   wip = fiber
   wipRoot = fiber
+
+  scheduleCallback(workLoop)
 }
 
 //* 实际开始调度的入口
-function workLoop(idleDeadline: IdleDeadline) {
-  while (wip && idleDeadline.timeRemaining() > 0) {
+function workLoop() {
+  while (wip) {
     performUnitOfWork()
   }
 
@@ -108,4 +111,4 @@ function getParentNode(wip: FiberType) {
   }
 }
 
-requestIdleCallback(workLoop)
+// requestIdleCallback(workLoop)

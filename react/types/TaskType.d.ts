@@ -1,6 +1,6 @@
 export type TaskType = {
   id: number
-  callback: typeof Function
+  callback: (() => void) | null
   priorityLevel: number
   startTime: number
   expirationTime: number
