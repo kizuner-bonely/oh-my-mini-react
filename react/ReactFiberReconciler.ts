@@ -16,7 +16,9 @@ export function updateHostComponent(wip: FiberType) {
 }
 
 export function updateFunctionComponent(wip: FiberType) {
-  console.log('update function component')
+  const { type, props } = wip
+  const children = type(props)
+  reconcileChildren(wip, children)
 }
 
 export function updateClassComponent(wip: FiberType) {
@@ -39,6 +41,7 @@ function reconcileChildren(
   // 子节点是单一子节点的话直接当成属性，不另外生成 Fiber
   if (isStringOrNumber(children)) return
 
+  // 此处的 children 就是 ReactElement ( jsx()的结果 )
   const newChildren = isArray(children) ? children : [children]
   let previousNewFiber: FiberType | null = null
 

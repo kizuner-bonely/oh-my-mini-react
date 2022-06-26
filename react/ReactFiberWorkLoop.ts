@@ -88,19 +88,9 @@ function commitWorker(wip: FiberType | null) {
   if (!wip) return
 
   // 1.提交自己
-  // let parentNode: HTMLElement | undefined
-  // let parentFiber = wip.return
-  // while (!parentNode && parentFiber) {
-  //   if (parentFiber.stateNode) {
-  //     parentNode = parentFiber.stateNode
-  //     break
-  //   }
-  //   parentFiber = parentFiber.return
-  // }
-  const parentNode = wip.return!.stateNode
+  const parentNode = getParentNode(wip.return!)
   const { flags, stateNode } = wip
   if (flags & Placement && stateNode) {
-    console.log(parentNode)
     parentNode!.appendChild(stateNode)
   }
 
@@ -108,6 +98,14 @@ function commitWorker(wip: FiberType | null) {
   commitWorker(wip.child)
   // 3.提交兄弟节点
   commitWorker(wip.sibling)
+}
+
+function getParentNode(wip: FiberType) {
+  let tmp = wip
+  while (tmp) {
+    if (tmp.stateNode) return tmp.stateNode
+    tmp = tmp.return!
+  }
 }
 
 requestIdleCallback(workLoop)

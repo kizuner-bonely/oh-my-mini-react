@@ -16,7 +16,6 @@ class ReactDOMRoot {
 
   render(children: FiberType) {
     // 此处拿到的 children 是 ReactElement，我们需要把它转换成 Fiber
-    console.log('children', children)
     const root = this._internalRoot
 
     updateContainer(children, root)

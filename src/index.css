@@ -12,9 +12,8 @@ code {
     monospace;
 }
 
-.App {
-  width: 80vw;
+.border {
+  padding: 5px;
   border: 1px solid red;
-  padding: 20px;
   margin: 10px auto;
 }
