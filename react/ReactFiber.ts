@@ -19,14 +19,11 @@ export function createFiber(vnode: VnodeType, returnFiber: VnodeType) {
 
   const { type } = vnode
 
-  switch (type) {
-    case isStr(type):
-      fiber.tag = HostComponent
-      break
-    case isFn(type):
-      // todo: 区分函数组件和类组件
-      fiber.tag = FunctionComponent
-      break
+  if (isStr(type)) {
+    fiber.tag = HostComponent
+  } else if (isFn(type)) {
+    // todo: 区分函数组件和类组件
+    fiber.tag = FunctionComponent
   }
 
   return fiber
