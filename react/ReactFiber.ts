@@ -1,10 +1,10 @@
-import type { VnodeType } from '@type/VnodeType'
+import type { FiberType } from '@type/VnodeType'
 import { isFn, isStr } from '@utils'
 import { Placement } from './Flags'
 import { FunctionComponent, HostComponent } from './ReactWorkTags'
 
-export function createFiber(vnode: VnodeType, returnFiber: VnodeType) {
-  const fiber: VnodeType = {
+export function createFiber(vnode: FiberType, returnFiber: FiberType) {
+  const fiber: FiberType = {
     tag: 0,
     type: vnode.type,
     key: vnode.key,

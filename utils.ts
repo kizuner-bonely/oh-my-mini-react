@@ -1,4 +1,4 @@
-import { VnodeType } from '@type/VnodeType'
+import { FiberType } from '@type/VnodeType'
 
 export function isStr(s: unknown): s is string {
   return typeof s === 'string'
@@ -19,7 +19,7 @@ export function isArray(arr: unknown): arr is unknown[] {
 //* 将 fiber 节点的属性渲染到对应的 DOM 上
 export function updateNode(
   node: HTMLElement,
-  nextVal: { children: VnodeType['props']['children'] } & Record<string, any>,
+  nextVal: { children: FiberType['props']['children'] } & Record<string, any>,
 ) {
   Object.keys(nextVal).forEach(k => {
     if (k === 'children') {

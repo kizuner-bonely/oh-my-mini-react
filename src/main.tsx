@@ -1,7 +1,7 @@
 import { ReactDOM } from './which-react'
 // import App from './App'
 import './index.css'
-import { VnodeType } from '@react/types/VnodeType'
+import { FiberType } from '@react/types/VnodeType'
 
 const jsx = (
   <div className="App">
@@ -14,5 +14,5 @@ const jsx = (
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   // (<App />) as VnodeType,
-  jsx as VnodeType,
+  jsx as FiberType,
 )

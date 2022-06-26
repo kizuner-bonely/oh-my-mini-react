@@ -1,9 +1,9 @@
 import { isArray, isStringOrNumber, updateNode } from '@utils'
 import { createFiber } from './ReactFiber'
-import { VnodeType } from './types/VnodeType'
+import { FiberType } from './types/VnodeType'
 
 //* 更新原生标签节点类型的 Fiber
-export function updateHostComponent(wip: VnodeType) {
+export function updateHostComponent(wip: FiberType) {
   // 更新自己
   if (!wip.stateNode) {
     wip.stateNode = document.createElement(wip.type)
@@ -15,32 +15,32 @@ export function updateHostComponent(wip: VnodeType) {
   reconcileChildren(wip, wip.props.children)
 }
 
-export function updateFunctionComponent(wip: VnodeType) {
+export function updateFunctionComponent(wip: FiberType) {
   console.log('update function component')
 }
 
-export function updateClassComponent(wip: VnodeType) {
+export function updateClassComponent(wip: FiberType) {
   console.log('update class component')
 }
 
-export function updateFragmentComponent(wip: VnodeType) {
+export function updateFragmentComponent(wip: FiberType) {
   console.log('update fragment component')
 }
 
-export function updateHostTextComponent(wip: VnodeType) {
+export function updateHostTextComponent(wip: FiberType) {
   console.log('update host text component')
 }
 
 //* 协调一个 fiber 的 子fiber
 function reconcileChildren(
-  wip: VnodeType, // 被协调的 fiber
-  children: VnodeType['props']['children'], // 被协调 fiber 的 子fiber
+  wip: FiberType, // 被协调的 fiber
+  children: FiberType['props']['children'], // 被协调 fiber 的 子fiber
 ) {
   // 子节点是单一子节点的话直接当成属性，不另外生成 Fiber
   if (isStringOrNumber(children)) return
 
   const newChildren = isArray(children) ? children : [children]
-  let previousNewFiber: VnodeType | null = null
+  let previousNewFiber: FiberType | null = null
 
   newChildren.forEach(child => {
     const newFiber = createFiber(child, wip)

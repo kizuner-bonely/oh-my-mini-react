@@ -1,4 +1,4 @@
-import { VnodeType } from '@type/VnodeType'
+import { FiberType } from '@type/VnodeType'
 import { Placement } from './Flags'
 import {
   updateClassComponent,
@@ -15,8 +15,8 @@ import {
   HostText,
 } from './ReactWorkTags'
 
-let wip: null | VnodeType = null //! work in progress
-let wipRoot: null | VnodeType = null
+let wip: null | FiberType = null //! work in progress
+let wipRoot: null | FiberType = null
 
 //* 更新 Fiber 节点
 export function performUnitOfWork() {
@@ -61,7 +61,7 @@ export function performUnitOfWork() {
 }
 
 //* 将 Fiber 渲染到 DOM 上 ( 初次渲染和更新都执行该函数 )
-export function scheduleUpdateOnFiber(fiber: VnodeType) {
+export function scheduleUpdateOnFiber(fiber: FiberType) {
   wip = fiber
   wipRoot = fiber
 }
@@ -84,7 +84,7 @@ function commitRoot() {
   wipRoot = null
 }
 
-function commitWorker(wip: VnodeType | null) {
+function commitWorker(wip: FiberType | null) {
   if (!wip) return
 
   // 1.提交自己
