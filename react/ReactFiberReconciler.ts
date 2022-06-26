@@ -33,7 +33,7 @@ export function updateFragmentComponent(wip: FiberType) {
 }
 
 export function updateHostTextComponent(wip: FiberType) {
-  console.log('update host text component')
+  wip.stateNode = document.createTextNode(wip.props.children as string)
 }
 
 //* 协调一个 fiber 的 子fiber

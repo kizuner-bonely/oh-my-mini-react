@@ -6,7 +6,7 @@ export interface FiberType {
     children: FiberType | FiberType[] | string | number
     [K in string]: any
   }
-  stateNode: HTMLElement | null
+  stateNode: HTMLElement | Text | null
   child: FiberType | null
   sibling: FiberType | null
   return: FiberType | null

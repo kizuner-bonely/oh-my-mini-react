@@ -1,10 +1,11 @@
 import type { FiberType } from '@type/VnodeType'
-import { isFn, isStr } from '@utils'
+import { isFn, isStr, isUndefined } from '@utils'
 import { Placement } from './Flags'
 import {
   ClassComponent,
   FunctionComponent,
   HostComponent,
+  HostText,
 } from './ReactWorkTags'
 
 export function createFiber(vnode: FiberType, returnFiber: FiberType) {
@@ -29,6 +30,9 @@ export function createFiber(vnode: FiberType, returnFiber: FiberType) {
     fiber.tag = type.prototype.isReactComponent
       ? ClassComponent
       : FunctionComponent
+  } else if (isUndefined(type)) {
+    fiber.tag = HostText
+    fiber.props = { children: vnode }
   }
 
   return fiber

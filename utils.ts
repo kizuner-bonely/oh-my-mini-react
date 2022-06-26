@@ -17,9 +17,13 @@ export function isArray(arr: unknown): arr is unknown[] {
   return Array.isArray(arr)
 }
 
+export function isUndefined(item: unknown): item is undefined {
+  return item === undefined
+}
+
 //* 将 fiber 节点的属性渲染到对应的 DOM 上
 export function updateNode(
-  node: HTMLElement,
+  node: HTMLElement | Text,
   nextVal: { children: FiberType['props']['children'] } & Record<string, any>,
 ) {
   Object.keys(nextVal).forEach(k => {

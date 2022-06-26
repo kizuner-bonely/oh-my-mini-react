@@ -24,6 +24,7 @@ function FunctionComponent(props: { name: string }) {
   return (
     <div className="border">
       <p>{props.name}</p>
+      我是文本
     </div>
   )
 }
