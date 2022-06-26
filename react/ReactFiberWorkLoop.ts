@@ -1,4 +1,5 @@
 import { VnodeType } from '@type/VnodeType'
+import { Placement } from './Flags'
 import {
   updateClassComponent,
   updateFragmentComponent,
@@ -16,12 +17,6 @@ import {
 
 let wip: null | VnodeType = null //! work in progress
 let wipRoot: null | VnodeType = null
-
-//* 将 Fiber 渲染到 DOM 上 ( 初次渲染和更新都执行该函数 )
-export function scheduleUpdateOnFiber(fiber: VnodeType) {
-  wip = fiber
-  wipRoot = fiber
-}
 
 //* 更新 Fiber 节点
 export function performUnitOfWork() {
@@ -64,3 +59,55 @@ export function performUnitOfWork() {
 
   wip = null
 }
+
+//* 将 Fiber 渲染到 DOM 上 ( 初次渲染和更新都执行该函数 )
+export function scheduleUpdateOnFiber(fiber: VnodeType) {
+  wip = fiber
+  wipRoot = fiber
+}
+
+//* 实际开始调度的入口
+function workLoop(idleDeadline: IdleDeadline) {
+  while (wip && idleDeadline.timeRemaining() > 0) {
+    performUnitOfWork()
+  }
+
+  // fiber 更新完毕，接下来是提交更新好的 fiber 节点
+  // 提交是从根节点开始提交
+  if (!wip && wipRoot) {
+    commitRoot()
+  }
+}
+
+function commitRoot() {
+  commitWorker(wipRoot)
+  wipRoot = null
+}
+
+function commitWorker(wip: VnodeType | null) {
+  if (!wip) return
+
+  // 1.提交自己
+  // let parentNode: HTMLElement | undefined
+  // let parentFiber = wip.return
+  // while (!parentNode && parentFiber) {
+  //   if (parentFiber.stateNode) {
+  //     parentNode = parentFiber.stateNode
+  //     break
+  //   }
+  //   parentFiber = parentFiber.return
+  // }
+  const parentNode = wip.return!.stateNode
+  const { flags, stateNode } = wip
+  if (flags & Placement && stateNode) {
+    console.log(parentNode)
+    parentNode!.appendChild(stateNode)
+  }
+
+  // 2.提交子节点
+  commitWorker(wip.child)
+  // 3.提交兄弟节点
+  commitWorker(wip.sibling)
+}
+
+requestIdleCallback(workLoop)

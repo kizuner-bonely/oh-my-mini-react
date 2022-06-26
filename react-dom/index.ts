@@ -35,7 +35,7 @@ function updateContainer(element: VnodeType, container: Root) {
     stateNode: containerInfo,
     // 次要
     key: null,
-    props: {},
+    props: { children: '' },
     tag: HostComponent,
     child: null,
     sibling: null,
