@@ -1,4 +1,6 @@
+/* eslint-disable react/prop-types */
 import './App.css'
+import { Component } from './which-react'
 
 function App() {
   return (
@@ -11,6 +13,9 @@ function App() {
       </div>
 
       <FunctionComponent name="函数组件" />
+
+      {/* @ts-ignore */}
+      <ClassComponent name="类组件" />
     </div>
   )
 }
@@ -21,6 +26,18 @@ function FunctionComponent(props: { name: string }) {
       <p>{props.name}</p>
     </div>
   )
+}
+
+// @ts-ignore
+class ClassComponent extends Component {
+  render() {
+    return (
+      <div className="border">
+        {/* @ts-ignore */}
+        <h3>{this.props.name}</h3>
+      </div>
+    )
+  }
 }
 
 export default App

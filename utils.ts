@@ -1,4 +1,5 @@
 import { FiberType } from '@type/VnodeType'
+import { Component } from '@react/react'
 
 export function isStr(s: unknown): s is string {
   return typeof s === 'string'
@@ -8,7 +9,7 @@ export function isStringOrNumber(s: unknown): s is string | number {
   return typeof s === 'string' || typeof s === 'number'
 }
 
-export function isFn(fn: unknown): fn is typeof Function {
+export function isFn(fn: unknown): fn is typeof Function | typeof Component {
   return typeof fn === 'function'
 }
 

@@ -1,7 +1,11 @@
 import type { FiberType } from '@type/VnodeType'
 import { isFn, isStr } from '@utils'
 import { Placement } from './Flags'
-import { FunctionComponent, HostComponent } from './ReactWorkTags'
+import {
+  ClassComponent,
+  FunctionComponent,
+  HostComponent,
+} from './ReactWorkTags'
 
 export function createFiber(vnode: FiberType, returnFiber: FiberType) {
   const fiber: FiberType = {
@@ -22,8 +26,9 @@ export function createFiber(vnode: FiberType, returnFiber: FiberType) {
   if (isStr(type)) {
     fiber.tag = HostComponent
   } else if (isFn(type)) {
-    // todo: 区分函数组件和类组件
-    fiber.tag = FunctionComponent
+    fiber.tag = type.prototype.isReactComponent
+      ? ClassComponent
+      : FunctionComponent
   }
 
   return fiber
