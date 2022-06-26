@@ -8,6 +8,7 @@ export function updateHostComponent(wip: VnodeType) {
   if (!wip.stateNode) {
     wip.stateNode = document.createElement(wip.type)
   }
+  // 将本 Fiber 的属性渲染到对应的 DOM 上
   updateNode(wip.stateNode!, wip.props)
 
   // 更新子节点
