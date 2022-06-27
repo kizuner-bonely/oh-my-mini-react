@@ -21,6 +21,8 @@ export function createFiber(vnode: FiberType, returnFiber: FiberType) {
     return: returnFiber,
     flags: Placement,
     index: null, // 由于 Fiber树 是链表结构, 在 diff 子节点时为了判断是否移动位置，使用 index 标记
+    alternate: null,
+    memorizedState: null,
   }
 
   const { type } = vnode

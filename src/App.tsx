@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
 import './App.css'
-import { Component } from './which-react'
+import { Component, useReducer } from './which-react'
 
 function App() {
+  const [count, setCount] = useReducer((x: number) => x + 1, 0)
+
   return (
     <div className="App">
       <div className="border">
@@ -10,14 +12,18 @@ function App() {
         <a href="https://github.com/kizuner-bonely/oh-my-mini-react">
           oh-my-mini-react
         </a>
+
+        <div>
+          <button onClick={setCount}>{count}</button>
+        </div>
       </div>
 
-      <FunctionComponent name="函数组件" />
+      {/* <FunctionComponent name="函数组件" /> */}
 
       {/* @ts-ignore */}
-      <ClassComponent name="类组件" />
+      {/* <ClassComponent name="类组件" /> */}
 
-      <FragmentComponent />
+      {/* <FragmentComponent /> */}
     </div>
   )
 }

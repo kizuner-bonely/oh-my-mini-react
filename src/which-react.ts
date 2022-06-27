@@ -3,7 +3,7 @@
 // import ReactDOM from 'react-dom/client'
 
 //* 自制
-import { Component } from '@react/react'
+import { Component, useReducer } from '@react/react'
 import ReactDOM from '@react-dom'
 
-export { ReactDOM, Component }
+export { ReactDOM, Component, useReducer }

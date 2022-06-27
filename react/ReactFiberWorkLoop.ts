@@ -1,5 +1,6 @@
 import { FiberType } from '@type/VnodeType'
-import { Placement } from './Flags'
+import { updateNode } from '@utils'
+import { Placement, Update } from './Flags'
 import {
   updateClassComponent,
   updateFragmentComponent,
@@ -93,8 +94,15 @@ function commitWorker(wip: FiberType | null) {
   // 1.提交自己
   const parentNode = getParentNode(wip.return!)
   const { flags, stateNode } = wip
+
+  // 添加自己
   if (flags & Placement && stateNode) {
     parentNode!.appendChild(stateNode)
+  }
+
+  // 更新自己
+  if (flags & Update && stateNode) {
+    updateNode(stateNode, wip.alternate!.props, wip.props)
   }
 
   // 2.提交子节点

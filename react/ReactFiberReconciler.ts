@@ -1,4 +1,6 @@
 import { isArray, isStringOrNumber, updateNode } from '@utils'
+import { Update } from './Flags'
+import { renderWithHooks } from './hooks'
 import { createFiber } from './ReactFiber'
 import { FiberType } from './types/VnodeType'
 
@@ -9,13 +11,15 @@ export function updateHostComponent(wip: FiberType) {
     wip.stateNode = document.createElement(wip.type)
   }
   // 将本 Fiber 的属性渲染到对应的 DOM 上
-  updateNode(wip.stateNode!, wip.props)
+  updateNode(wip.stateNode!, {}, wip.props)
 
   // 更新子节点
   reconcileChildren(wip, wip.props.children)
 }
 
 export function updateFunctionComponent(wip: FiberType) {
+  renderWithHooks(wip)
+
   const { type, props } = wip
   const children = type(props)
   reconcileChildren(wip, children)
@@ -44,15 +48,29 @@ function reconcileChildren(
   // 子节点是单一子节点的话直接当成属性，不另外生成 Fiber
   if (isStringOrNumber(children)) return
 
+  let previousNewFiber: FiberType | null = null
+  let oldFiber = wip.alternate?.child ?? null // oldFiber 的第一子节点
+
   // 此处的 children 就是 ReactElement ( jsx()的结果 )
   const newChildren = isArray(children) ? children : [children]
-  let previousNewFiber: FiberType | null = null
 
   newChildren.forEach(child => {
+    // React 不对 null 生成 Fiber 节点
+    if (child === null) return
+
     const newFiber = createFiber(child, wip)
 
-    // React 不对 null 生成 Fiber 节点
-    if (newFiber === null) return
+    if (sameNode(newFiber, oldFiber)) {
+      Object.assign(newFiber, {
+        stateNode: oldFiber!.stateNode,
+        alternate: oldFiber,
+        flags: Update,
+      })
+    }
+
+    if (oldFiber) {
+      oldFiber = oldFiber.sibling
+    }
 
     // 构建 子fiber 的关系
     if (previousNewFiber === null) {
@@ -63,4 +81,10 @@ function reconcileChildren(
     }
     previousNewFiber = newFiber
   })
+}
+
+//* 判断是否能复用节点
+// 1.同一层级下; 2.类型相同; 3.key 相同
+function sameNode(a: FiberType, b: FiberType | null): b is FiberType {
+  return a && b && a.type === b?.type && a.key === b?.key ? true : false
 }
