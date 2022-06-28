@@ -23,9 +23,18 @@ function App() {
 
         <div>{count % 2 ? <div>Kizuna AI</div> : <p>love</p>}</div>
 
-        <ul>
+        {/* <ul>
           {[1, 2, 3, 4, 5].map(s => (num >= s ? <li key={s}>{s}</li> : null))}
-        </ul>
+        </ul> */}
+
+        <div>
+          <h3>diff</h3>
+          <ul>
+            {num % 2 === 0
+              ? [0, 1, 2, 3, 4].map(n => <li key={n}>{n}</li>)
+              : [1, 3, 4].map(n => <li key={n}>{n}</li>)}
+          </ul>
+        </div>
       </div>
 
       <FunctionComponent name="函数组件" />
