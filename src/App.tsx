@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import './App.css'
-import { Component, useReducer } from './which-react'
+import { Component, useReducer, useState } from './which-react'
 
 function App() {
   const [count, setCount] = useReducer((x: number) => x + 1, 0)
+  const [num, setNum] = useState(0)
 
   return (
     <div className="App">
@@ -15,6 +16,7 @@ function App() {
 
         <div>
           <button onClick={setCount}>{count}</button>
+          <button onClick={() => setNum(num + 1)}>{num}</button>
         </div>
       </div>
 
@@ -23,7 +25,7 @@ function App() {
       {/* @ts-ignore */}
       <ClassComponent name="类组件" />
 
-      {/* <FragmentComponent /> */}
+      <FragmentComponent />
     </div>
   )
 }

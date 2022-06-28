@@ -46,7 +46,7 @@ function updateWorkInProgressHook() {
   return hook
 }
 
-export function useReducer(reducer: ReducerType, initialState: any) {
+export function useReducer(reducer: ReducerType | null, initialState: any) {
   const hook = updateWorkInProgressHook()
 
   if (!currentlyRenderingFiber?.alternate) {
@@ -67,14 +67,18 @@ export function useReducer(reducer: ReducerType, initialState: any) {
 function dispatchReducerAction(
   fiber: FiberType,
   hook: HookType,
-  reducer: ReducerType,
-  // action?: any,
+  reducer: ReducerType | null,
+  action: any, // 如果是 useState，这里可能是一个普通值，也可能是函数，总之由用户在外界传入
 ) {
   // 获取最新值
-  hook.memorizedState = reducer(hook.memorizedState)
+  hook.memorizedState = reducer ? reducer(hook.memorizedState) : action
   // 保存当前节点 ( 老节点 )
   fiber!.alternate = { ...fiber! }
   fiber.sibling = null
   // 调度更新
   scheduleUpdateOnFiber(fiber!)
+}
+
+export function useState<T>(initialState: T) {
+  return useReducer(null, initialState)
 }
