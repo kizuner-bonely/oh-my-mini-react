@@ -16,10 +16,16 @@ function App() {
 
         <div>
           <button onClick={setCount}>{count}</button>
-          <button onClick={() => setNum(num + 1)}>{num}</button>
+          <button onClick={() => setNum(num + 1 > 5 ? 0 : num + 1)}>
+            {num}
+          </button>
         </div>
 
-        {count % 2 ? <div>Kizuna AI</div> : <p>love</p>}
+        <div>{count % 2 ? <div>Kizuna AI</div> : <p>love</p>}</div>
+
+        <ul>
+          {[1, 2, 3, 4, 5].map(s => (num >= s ? <li key={s}>{s}</li> : null))}
+        </ul>
       </div>
 
       <FunctionComponent name="函数组件" />
