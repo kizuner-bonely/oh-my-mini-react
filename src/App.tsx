@@ -18,10 +18,10 @@ function App() {
         </div>
       </div>
 
-      {/* <FunctionComponent name="函数组件" /> */}
+      <FunctionComponent name="函数组件" />
 
       {/* @ts-ignore */}
-      {/* <ClassComponent name="类组件" /> */}
+      <ClassComponent name="类组件" />
 
       {/* <FragmentComponent /> */}
     </div>

@@ -54,14 +54,27 @@ export function useReducer(reducer: ReducerType, initialState: any) {
     hook.memorizedState = initialState
   }
 
-  const dispatch = () => {
-    // 获取最新值
-    hook.memorizedState = reducer(hook.memorizedState)
-    // 保存当前节点 ( 老节点 )
-    currentlyRenderingFiber!.alternate = { ...currentlyRenderingFiber! }
-    // 调度更新
-    scheduleUpdateOnFiber(currentlyRenderingFiber!)
-  }
+  const dispatch = dispatchReducerAction.bind(
+    null,
+    currentlyRenderingFiber as FiberType,
+    hook,
+    reducer,
+  )
 
   return [hook.memorizedState, dispatch]
+}
+
+function dispatchReducerAction(
+  fiber: FiberType,
+  hook: HookType,
+  reducer: ReducerType,
+  // action?: any,
+) {
+  // 获取最新值
+  hook.memorizedState = reducer(hook.memorizedState)
+  // 保存当前节点 ( 老节点 )
+  fiber!.alternate = { ...fiber! }
+  fiber.sibling = null
+  // 调度更新
+  scheduleUpdateOnFiber(fiber!)
 }
