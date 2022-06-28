@@ -41,6 +41,9 @@ function updateContainer(element: FiberType, container: Root) {
     return: null,
     flags: NoFlags,
     index: null,
+    alternate: null,
+    memorizedState: null,
+    deletions: null,
   })
 
   //* 将 <App /> 挂载到真实 DOM ( document.getElementById('root') ) 上

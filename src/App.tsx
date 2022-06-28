@@ -18,6 +18,8 @@ function App() {
           <button onClick={setCount}>{count}</button>
           <button onClick={() => setNum(num + 1)}>{num}</button>
         </div>
+
+        {count % 2 ? <div>Kizuna AI</div> : <p>love</p>}
       </div>
 
       <FunctionComponent name="函数组件" />

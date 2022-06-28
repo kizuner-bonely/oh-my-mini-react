@@ -93,7 +93,7 @@ function commitWorker(wip: FiberType | null) {
 
   // 1.提交自己
   const parentNode = getParentNode(wip.return!)
-  const { flags, stateNode } = wip
+  const { flags, stateNode, deletions } = wip
 
   // 添加自己
   if (flags & Placement && stateNode) {
@@ -103,6 +103,11 @@ function commitWorker(wip: FiberType | null) {
   // 更新自己
   if (flags & Update && stateNode) {
     updateNode(stateNode, wip.alternate!.props, wip.props)
+  }
+
+  // 删除子元素
+  if (deletions) {
+    commitDeletions(deletions, (stateNode || parentNode) as HTMLElement)
   }
 
   // 2.提交子节点
@@ -120,3 +125,20 @@ function getParentNode(wip: FiberType) {
 }
 
 // requestIdleCallback(workLoop)
+
+function commitDeletions(deletions: FiberType[], parentNode: HTMLElement) {
+  deletions.forEach(d => {
+    parentNode.removeChild(getStateNode(d))
+  })
+}
+
+// 由于不是每个 fiber 都有 DOM 节点，因此需要该方法来获取实际 DOM
+function getStateNode(fiber: FiberType) {
+  let tmp = fiber
+
+  while (!tmp.stateNode) {
+    tmp = tmp.child!
+  }
+
+  return tmp.stateNode
+}

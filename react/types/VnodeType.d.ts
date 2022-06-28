@@ -25,4 +25,7 @@ export interface FiberType {
   // 对于函数组件来说存储的是 hook0
   // 对于类组件来说存储的是自己的状态值
   memorizedState: null | HookType | Record<string, any>
+
+  // 要删除的子 Fiber
+  deletions: FiberType[] | null
 }

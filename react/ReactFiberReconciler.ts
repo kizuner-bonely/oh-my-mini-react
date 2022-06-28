@@ -49,7 +49,7 @@ function reconcileChildren(
   if (isStringOrNumber(children)) return
 
   let previousNewFiber: FiberType | null = null
-  let oldFiber = wip.alternate?.child ?? null // oldFiber 的第一子节点
+  let oldFiber = wip.alternate?.child ?? null // wip 的第一子节点
 
   // 此处的 children 就是 ReactElement ( jsx()的结果 )
   const newChildren = isArray(children) ? children : [children]
@@ -60,12 +60,18 @@ function reconcileChildren(
 
     const newFiber = createFiber(child, wip)
 
-    if (sameNode(newFiber, oldFiber)) {
+    const isSame = sameNode(newFiber, oldFiber)
+
+    if (isSame) {
       Object.assign(newFiber, {
         stateNode: oldFiber!.stateNode,
         alternate: oldFiber,
         flags: Update,
       })
+    }
+
+    if (!isSame && oldFiber) {
+      deleteChild(wip, oldFiber)
     }
 
     if (oldFiber) {
@@ -87,4 +93,12 @@ function reconcileChildren(
 // 1.同一层级下; 2.类型相同; 3.key 相同
 function sameNode(a: FiberType, b: FiberType | null): b is FiberType {
   return a && b && a.type === b?.type && a.key === b?.key ? true : false
+}
+
+function deleteChild(returnFiber: FiberType, childToDelete: FiberType) {
+  if (returnFiber.deletions) {
+    returnFiber.deletions.push(childToDelete)
+  } else {
+    returnFiber.deletions = [childToDelete]
+  }
 }
