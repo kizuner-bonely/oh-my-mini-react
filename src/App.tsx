@@ -29,10 +29,16 @@ function App() {
 
         <div>
           <h3>diff</h3>
-          <ul>
+          {/* <ul>
             {num % 2 === 0
               ? [0, 1, 2, 3, 4].map(n => <li key={n}>{n}</li>)
               : [1, 3, 4].map(n => <li key={n}>{n}</li>)}
+          </ul> */}
+
+          <ul>
+            {num % 2 === 0
+              ? [0, 1, 3, 4].map(n => <li key={n}>{n}</li>)
+              : [0, 1, 2, 3, 4].map(n => <li key={n}>{n}</li>)}
           </ul>
         </div>
       </div>
