@@ -36,8 +36,11 @@ function App() {
           </ul> */}
 
           <ul>
-            {num % 2 === 0
+            {/* {num % 2 === 0
               ? [0, 1, 3, 4].map(n => <li key={n}>{n}</li>)
+              : [0, 1, 2, 3, 4].map(n => <li key={n}>{n}</li>)} */}
+            {num % 2 === 0
+              ? [2, 1, 3, 4].map(n => <li key={n}>{n}</li>)
               : [0, 1, 2, 3, 4].map(n => <li key={n}>{n}</li>)}
           </ul>
         </div>

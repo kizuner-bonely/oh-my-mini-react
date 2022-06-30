@@ -97,7 +97,9 @@ function commitWorker(wip: FiberType | null) {
 
   // 添加自己
   if (flags & Placement && stateNode) {
-    parentNode!.appendChild(stateNode)
+    // ! 注意这里要辨别要移动的节点
+    const before = getHostSibling(wip.sibling)
+    insertOrAppendPlacementNode(stateNode, before, parentNode!)
   }
 
   // 更新自己
@@ -114,6 +116,28 @@ function commitWorker(wip: FiberType | null) {
   commitWorker(wip.child)
   // 3.提交兄弟节点
   commitWorker(wip.sibling)
+}
+
+function getHostSibling(sibling: FiberType | null) {
+  while (sibling) {
+    if (sibling.stateNode && !(sibling.flags & Placement)) {
+      return sibling.stateNode
+    }
+    sibling = sibling.sibling
+  }
+  return null
+}
+
+function insertOrAppendPlacementNode(
+  stateNode: FiberType['stateNode'],
+  before: FiberType['stateNode'] | null,
+  parentNode: HTMLElement | Text,
+) {
+  if (before) {
+    parentNode.insertBefore(stateNode!, before)
+    return
+  }
+  parentNode.appendChild(stateNode!)
 }
 
 function getParentNode(wip: FiberType) {
