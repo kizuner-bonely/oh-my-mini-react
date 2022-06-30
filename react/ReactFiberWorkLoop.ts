@@ -102,7 +102,7 @@ function commitWorker(wip: FiberType | null) {
 
   // 更新自己
   if (flags & Update && stateNode) {
-    updateNode(stateNode, wip.alternate!.props, wip.props)
+    updateNode(stateNode, wip.alternate?.props, wip.props)
   }
 
   // 删除子元素
