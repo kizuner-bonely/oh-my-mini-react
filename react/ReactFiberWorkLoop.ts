@@ -16,7 +16,6 @@ import {
   HostText,
 } from './ReactWorkTags'
 import { scheduleCallback } from './scheduler'
-import { EffectType } from './types/hooks'
 
 let wip: null | FiberType = null //! work in progress
 let wipRoot: null | FiberType = null
