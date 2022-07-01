@@ -1,4 +1,4 @@
-import { FiberType } from '@type/VnodeType'
+import type { EffectType } from '@react/types/hooks'
 import { Component } from '@react/react'
 
 export function isStr(s: unknown): s is string {
@@ -58,4 +58,18 @@ export function updateNode(
       node[k] = nextVal[k]
     }
   })
+}
+
+export function areHooksDepsEquals(
+  nextDeps: EffectType['deps'],
+  prevDeps: EffectType['deps'],
+) {
+  if (prevDeps === null || nextDeps === null) return false
+
+  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
+    if (Object.is(nextDeps[i], prevDeps[i])) continue
+    return false
+  }
+
+  return true
 }

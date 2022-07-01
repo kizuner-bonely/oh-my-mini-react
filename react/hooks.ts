@@ -1,14 +1,22 @@
-import type { ReducerType, HookType } from '@type/hooks'
-import { scheduleUpdateOnFiber } from './ReactFiberWorkLoop'
+import type { ReducerType, HookType, EffectType } from '@type/hooks'
 import type { FiberType } from './types/VnodeType'
+import { HookLayout, HookPassive } from './Flags'
+import { scheduleUpdateOnFiber } from './ReactFiberWorkLoop'
+import { areHooksDepsEquals } from '@utils'
 
 let currentlyRenderingFiber: FiberType | null = null
 let workInProgressHook: HookType | null = null
+let currentHook: HookType | null = null
 
 export function renderWithHooks(wip: FiberType) {
   currentlyRenderingFiber = wip
   currentlyRenderingFiber.memorizedState = null
   workInProgressHook = null
+
+  //! 源码中 layoutEffect 和 effect 放在一个单向环形链表上
+  //! 这里为了方便分别用数组实现
+  currentlyRenderingFiber.updateQueueOfEffect = []
+  currentlyRenderingFiber.updateQueueOfLayout = []
 }
 
 function updateWorkInProgressHook() {
@@ -22,13 +30,17 @@ function updateWorkInProgressHook() {
     if (workInProgressHook) {
       // 下一个 hook
       workInProgressHook = hook = workInProgressHook.next!
+      currentHook = currentHook!.next
     } else {
       // hook0
       workInProgressHook = hook = currentlyRenderingFiber!
         .memorizedState as HookType
+      currentHook = current.memorizedState as HookType
     }
   } else {
     // 组件初次渲染
+    currentHook = null
+
     hook = {
       memorizedState: null, // state
       next: null, // 下一个 hook
@@ -81,4 +93,41 @@ function dispatchReducerAction(
 
 export function useState<T>(initialState: T) {
   return useReducer(null, initialState)
+}
+
+export function useEffect(create: () => void, deps: any[] | null = null) {
+  return useEffectImpl(HookPassive, create, deps)
+}
+
+export function useLayoutEffect(create: () => void, deps: any[] | null = null) {
+  return useEffectImpl(HookLayout, create, deps)
+}
+
+export function useEffectImpl(
+  flag: number,
+  create: () => void,
+  deps: any[] | null = null,
+) {
+  const hook = updateWorkInProgressHook()
+
+  if (currentHook) {
+    const prevEffect = currentHook.memorizedState
+    if (deps) {
+      const prevDeps = prevEffect.deps
+      // 依赖项没变则不执行
+      if (areHooksDepsEquals(deps, prevDeps)) {
+        return
+      }
+    }
+  }
+
+  const effect: EffectType = { flag, create, deps }
+
+  hook.memorizedState = effect
+
+  if (flag & HookPassive) {
+    currentlyRenderingFiber!.updateQueueOfEffect!.push(effect)
+  } else if (flag & HookLayout) {
+    currentlyRenderingFiber!.updateQueueOfLayout!.push(effect)
+  }
 }

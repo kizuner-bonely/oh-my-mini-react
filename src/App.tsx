@@ -1,10 +1,24 @@
 /* eslint-disable react/prop-types */
 import './App.css'
-import { Component, useReducer, useState } from './which-react'
+import {
+  Component,
+  useReducer,
+  useState,
+  useEffect,
+  useLayoutEffect,
+} from './which-react'
 
 function App() {
   const [count, setCount] = useReducer((x: number) => x + 1, 0)
   const [num, setNum] = useState(0)
+
+  useEffect(() => {
+    console.log('useEffect num')
+  }, [num])
+
+  useLayoutEffect(() => {
+    console.log('useLayoutEffect num')
+  }, [num])
 
   return (
     <div className="App">

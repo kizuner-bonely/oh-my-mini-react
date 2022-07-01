@@ -3,7 +3,13 @@
 // import ReactDOM from 'react-dom/client'
 
 //* 自制
-import { Component, useReducer, useState } from '@react/react'
+import {
+  Component,
+  useReducer,
+  useState,
+  useEffect,
+  useLayoutEffect,
+} from '@react/react'
 import ReactDOM from '@react-dom'
 
-export { ReactDOM, Component, useReducer, useState }
+export { ReactDOM, Component, useReducer, useState, useEffect, useLayoutEffect }

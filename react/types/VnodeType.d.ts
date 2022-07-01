@@ -1,3 +1,4 @@
+import type { EffectType } from '@type/hooks'
 import type { HookType } from './hooks'
 
 export interface FiberType {
@@ -28,4 +29,8 @@ export interface FiberType {
 
   // 要删除的子 Fiber
   deletions: FiberType[] | null
+
+  // 副作用
+  updateQueueOfEffect?: Array<EffectType>
+  updateQueueOfLayout?: Array<EffectType>
 }

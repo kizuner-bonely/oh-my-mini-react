@@ -16,6 +16,7 @@ import {
   HostText,
 } from './ReactWorkTags'
 import { scheduleCallback } from './scheduler'
+import { EffectType } from './types/hooks'
 
 let wip: null | FiberType = null //! work in progress
 let wipRoot: null | FiberType = null
@@ -112,6 +113,10 @@ function commitWorker(wip: FiberType | null) {
     commitDeletions(deletions, (stateNode || parentNode) as HTMLElement)
   }
 
+  if (wip.tag === FunctionComponent) {
+    invokeHooks(wip)
+  }
+
   // 2.提交子节点
   commitWorker(wip.child)
   // 3.提交兄弟节点
@@ -165,4 +170,14 @@ function getStateNode(fiber: FiberType) {
   }
 
   return tmp.stateNode
+}
+
+function invokeHooks(wip: FiberType) {
+  wip.updateQueueOfLayout!.forEach(e => {
+    e.create()
+  })
+
+  wip.updateQueueOfEffect!.forEach(e => {
+    scheduleCallback(e.create)
+  })
 }
