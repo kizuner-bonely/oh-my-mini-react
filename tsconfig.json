@@ -17,15 +17,15 @@
     "jsx": "react-jsx",
     "baseUrl": "./",
     "paths": {
-      "@react": ["./react"],
-      "@react/*": ["./react/*"],
-      "@type": ["./react/types"],
-      "@type/*": ["./react/types/*"],
+      "@react": ["./packages/react"],
+      "@react/*": ["./packages/react/*"],
+      "@react-dom": ["./packages/react-dom"],
+      "@react-dom/*": ["./packages/react-dom/*"],
+      "@type": ["./packages/react/types"],
+      "@type/*": ["./packages/react/types/*"],
       "@utils": ["./utils.ts"],
       "@src": ["./src"],
-      "@src/*": ["./src/*"],
-      "@react-dom": ["./react-dom"],
-      "@react-dom/*": ["./react-dom/*"]
+      "@src/*": ["./src/*"]
     }
   },
   "include": ["src", "react", "utils.ts"],

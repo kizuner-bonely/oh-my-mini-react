@@ -8,11 +8,11 @@ export default defineConfig({
   plugins: [react(), viteESLint()],
   resolve: {
     alias: {
-      '@react': path.resolve(__dirname, './react'),
-      '@type': path.resolve(__dirname, './react/types'),
+      '@react': path.resolve(__dirname, './packages/react'),
+      '@type': path.resolve(__dirname, './packages/react/types'),
       '@utils': path.resolve(__dirname, './utils.ts'),
       '@src': path.resolve(__dirname, './src'),
-      '@react-dom': path.resolve(__dirname, './react-dom'),
+      '@react-dom': path.resolve(__dirname, './packages/react-dom'),
     },
   },
 })
