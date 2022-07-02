@@ -21,6 +21,8 @@
       "@react/*": ["./packages/react/*"],
       "@react-dom": ["./packages/react-dom"],
       "@react-dom/*": ["./packages/react-dom/*"],
+      "@form": ["./packages/form"],
+      "@form/*": ["./packages/form/*"],
       "@type": ["./packages/react/types"],
       "@type/*": ["./packages/react/types/*"],
       "@utils": ["./utils.ts"],

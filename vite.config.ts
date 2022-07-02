@@ -10,9 +10,10 @@ export default defineConfig({
     alias: {
       '@react': path.resolve(__dirname, './packages/react'),
       '@type': path.resolve(__dirname, './packages/react/types'),
+      '@react-dom': path.resolve(__dirname, './packages/react-dom'),
+      '@form': path.resolve(__dirname, './packages/form'),
       '@utils': path.resolve(__dirname, './utils.ts'),
       '@src': path.resolve(__dirname, './src'),
-      '@react-dom': path.resolve(__dirname, './packages/react-dom'),
     },
   },
 })

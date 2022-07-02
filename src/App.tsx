@@ -1,10 +1,12 @@
-import MiniReact from './pages/MiniReact'
-import './App.css'
+// import MiniReact from './pages/MiniReact'
+import MyRCFieldForm from './pages/MyRCFieldForm'
+import './App.less'
 
 function App() {
   return (
     <div className="App">
-      <MiniReact />
+      {/* <MiniReact /> */}
+      <MyRCFieldForm />
     </div>
   )
 }
