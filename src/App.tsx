@@ -1,4 +1,4 @@
-import MiniReact from './pages/mini-react'
+import MiniReact from './pages/MiniReact'
 import './App.css'
 
 function App() {
