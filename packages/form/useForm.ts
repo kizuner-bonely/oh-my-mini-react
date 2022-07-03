@@ -12,9 +12,20 @@ export class FormStore {
   private fieldEntities: Set<Entity> = new Set()
   private callbacks: FormCallbacks = {} as any
 
-  // todo
   validate = () => {
-    const err: any[] = []
+    const err: Array<{ [K in string]: { message: string } }> = []
+
+    this.fieldEntities.forEach(entity => {
+      const { name, rules } = entity.props
+      const rule = rules[0]
+
+      if (rule?.required && isFalsy(this.getFieldValue(name))) {
+        err.push({ [name]: { message: rule?.message ?? '' } })
+      }
+
+      return err
+    })
+
     return err
   }
 
@@ -74,4 +85,8 @@ export class FormStore {
       submit: this.submit,
     }
   }
+}
+
+function isFalsy(val: unknown) {
+  return val === undefined || val === null || val === '' || val === false
 }

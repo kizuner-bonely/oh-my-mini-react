@@ -14,3 +14,5 @@ export type FormProps = {
 } & FormCallbacks
 
 export type Entity = ReactElement & { onStoreChanged(): void }
+
+export type RuleType = { required?: boolean; message: string }

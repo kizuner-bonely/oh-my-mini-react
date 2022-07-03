@@ -1,11 +1,11 @@
 import type { ReactElement, JSXElementConstructor } from 'react'
-import type { Entity } from './form.d'
+import type { Entity, RuleType } from './form.d'
 import { cloneElement, Component } from 'react'
 import { FieldContext } from './FieldContext'
 
 interface FieldProps {
   name: string
-  rules: any[] // todo 校验规则
+  rules: RuleType[] // todo 校验规则
   children: ReactElement<any, string | JSXElementConstructor<any>>
 }
 
