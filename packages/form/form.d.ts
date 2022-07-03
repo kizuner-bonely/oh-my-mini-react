@@ -17,3 +17,8 @@ export type FormProps = {
 export type Entity = ReactElement & { onStoreChanged(): void }
 
 export type RuleType = { required?: boolean; message: string }
+
+export type FunctionFieldProps = {
+  children: ReactElement<any, string | JSXElementConstructor<any>>
+  name: string
+}
