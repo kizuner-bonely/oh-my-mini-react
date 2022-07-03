@@ -92,4 +92,20 @@
     /packages/form
     ```
 
+  - 更换函数组件/类组件版本的 Field  `/packages/form/index.ts`
+    ```ts
+    import Form from './Form'
+    // import ComponentField from './ComponentField'
+    import FunctionField from './FunctionField'
+    import useForm from './useForm'
     
+    export {
+      //  ComponentField as Field,
+      FunctionField as Field,
+      useForm,
+    }
+    export default Form
+    ```
+
+    按需注释和解开注释
+
