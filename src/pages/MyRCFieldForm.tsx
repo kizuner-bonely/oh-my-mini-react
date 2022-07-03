@@ -19,7 +19,7 @@ export default function MyRCFieldForm() {
 
   useEffect(() => {
     console.log('form', form)
-    // form.setFieldsValue({ username: "default" });
+    form.setFieldValue({ username: 'default' })
   }, [])
 
   return (
