@@ -1,8 +1,8 @@
-import type { Entity, FormCallbacks } from './form.d'
+import type { Entity, FormCallbacks, FormProps } from './form.d'
 import { useRef } from 'react'
 
-export default function useForm() {
-  const store = useRef(new FormStore()).current
+export default function useForm(form?: FormProps['form']) {
+  const store = useRef(form ? form : new FormStore().getForm()).current
 
   return [store]
 }

@@ -10,7 +10,8 @@ export type FormCallbacks = {
 
 export type FormProps = {
   children: JSX.Element | JSX.Element[]
-  form: FieldContextType
+  form?: ReturnType<FormStore['getForm']>
+  ref?: RefObject<unknown>
 } & FormCallbacks
 
 export type Entity = ReactElement & { onStoreChanged(): void }

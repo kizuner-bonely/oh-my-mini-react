@@ -5,7 +5,7 @@ import { FieldContext } from './FieldContext'
 
 interface FieldProps {
   name: string
-  rules: RuleType[] // todo 校验规则
+  rules: RuleType[]
   children: ReactElement<any, string | JSXElementConstructor<any>>
 }
 
