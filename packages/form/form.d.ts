@@ -21,4 +21,5 @@ export type RuleType = { required?: boolean; message: string }
 export type FunctionFieldProps = {
   children: ReactElement<any, string | JSXElementConstructor<any>>
   name: string
+  rules?: RuleType[]
 }
