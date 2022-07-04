@@ -12,6 +12,7 @@ export default defineConfig({
       '@type': path.resolve(__dirname, './packages/react/types'),
       '@react-dom': path.resolve(__dirname, './packages/react-dom'),
       '@form': path.resolve(__dirname, './packages/form'),
+      '@redux': path.resolve(__dirname, './packages/redux'),
       '@utils': path.resolve(__dirname, './utils.ts'),
       '@src': path.resolve(__dirname, './src'),
     },
