@@ -1,6 +1,20 @@
-import { ActionType, ListenerType, ReducerType } from './redux.d'
+import type {
+  ActionType,
+  ListenerType,
+  MiddlewareType,
+  ReducerType,
+  StoreType,
+} from './redux.d'
+import { compose } from './utils'
 
-export default function createStore(reducer: ReducerType) {
+function createStore(
+  reducer: ReducerType,
+  enhancer?: ReturnType<typeof applyMiddleware>,
+): StoreType {
+  if (enhancer) {
+    return enhancer(createStore)(reducer)
+  }
+
   let currentState: any
   const listeners: Set<ListenerType> = new Set()
 
@@ -25,4 +39,24 @@ export default function createStore(reducer: ReducerType) {
   return { getState, dispatch, subscribe }
 }
 
-export { createStore }
+function applyMiddleware(...middlewares: MiddlewareType[]) {
+  return (_createStore: typeof createStore) => (reducer: ReducerType) => {
+    const store = _createStore(reducer)
+    let dispatch = store.dispatch
+
+    const midAPI = {
+      getState: store.getState,
+      dispatch: (action: ActionType, ...args: any[]) =>
+        dispatch(action, ...args),
+    }
+
+    const middlewareChain = middlewares.map(m => m(midAPI))
+
+    //* 加强版的 dispatch: 执行所有中间件之后执行原版 dispatch
+    dispatch = compose(...middlewareChain)(store.dispatch)
+
+    return { ...store, dispatch }
+  }
+}
+
+export { createStore, applyMiddleware }
