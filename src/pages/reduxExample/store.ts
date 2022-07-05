@@ -1,6 +1,6 @@
-import { createStore, applyMiddleware } from '@redux'
-import thunk from 'redux-thunk'
-import logger from 'redux-logger'
+import { createStore, applyMiddleware, logger, thunk } from '@redux'
+// import thunk from 'redux-thunk'
+// import logger from 'redux-logger'
 
 type ActionType = { type: 'ADD' | 'MINUS' }
 
@@ -15,8 +15,5 @@ function countReducer(state = 0, action: ActionType) {
   }
 }
 
-const store = createStore(
-  countReducer,
-  applyMiddleware(thunk as any, logger as any),
-)
+const store = createStore(countReducer, applyMiddleware(thunk, logger))
 export default store

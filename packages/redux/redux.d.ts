@@ -1,4 +1,6 @@
-export type ActionType = { type: any }
+export type ActionType =
+  | { type: any }
+  | ((dispatch: StoreType['dispatch'], getState: StoreType['getState']) => any)
 
 export type ReducerType = (state: any, action: type) => any
 
@@ -16,3 +18,5 @@ export type StoreType = {
   dispatch(action: ActionType, ...args: any[]): void
   subscribe(listener: ListenerType): () => void
 }
+
+type NextType = (action: ActionType) => any
