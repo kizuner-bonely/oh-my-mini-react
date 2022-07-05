@@ -16,9 +16,9 @@ export default function ReduxExample() {
   }, [])
 
   const asyncMinus = useCallback(() => {
-    setTimeout(() => {
-      store.dispatch({ type: 'MINUS' })
-    }, 0)
+    store.dispatch(dispatch => {
+      dispatch({ type: 'MINUS' })
+    })
   }, [])
 
   return (
