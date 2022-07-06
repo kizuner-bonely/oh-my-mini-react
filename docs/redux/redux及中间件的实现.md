@@ -1,4 +1,4 @@
-## redux 的最简实现
+## 1. redux 的最简实现
 
 首先观察一下使用范式：
 
@@ -177,5 +177,227 @@ export function createStore(reducer: ReducerType) {
 
 
 
+## 2. 中间件
 
+### 2.1 聚合中间件 —— 增强 dispatch
+
+上面的例子在同步 dispatch 的情况下是正常工作的，但是如果是异步呢，比如说：
+
+```ts
+const asyncMinus = () => {
+  store.dispatch((dispatch) => {
+    setTimeout(() => {
+      dispatch({ type: 'MINUS' })
+    }, 0)
+  })
+}
+```
+
+这个时候就出问题了。
+
+之前我们定义了 dispatch 的入参是一个对象，但传入函数的话显然走不通先前的路了。这个时候我们需要增强 dispatch，以适应更多功能。
+
+用来创建 `store` 实例的方法 `createStore` 其实还有第二个参数，入参是 `applyMiddleware()`。
+
+**applyMiddleware**
+
+```ts
+type MidAPI = {
+  getState(): any
+  dispatch: StoreType['dispatch']
+}
+
+type MiddlewareType = (midAPI: MidAPI) => (...args: any[]) => any
+
+type StoreType = {
+  getState(): any
+  dispatch(action: ActionType, ...args: any[]): void
+  subscribe(listener: ListenerType): () => void
+}
+
+type applyMiddleware = (...middlewares: MiddlewareType[]) => 
+	(createStore: typeof createStore) => (reducer: ReducerType) => StoreType
+```
+
+在继续深入之前先理解一下这个参数的含义，首先我们的目标是加强 store.dispatch，所谓加强就是在执行原生 store.dispatch 之前先执行其他函数，再执行原生 store.dispatch。
+
+为此，我们得先获取原生 store，再把 dispatch 提取出来，然后加强，最后再把加强后的 dispatch 替换原来的。还不懂的同学可以结合这句话和 `applyMiddleware` 的定义再捋捋。
+
+**index.ts**
+
+```ts
+import type { ReducerType, ListenerType, ActionType } from './redux.d'
+import { compose } from './utils'
+
+export function createStore(reducer: ReducerType) {
+  let state: any
+  const listeners: Set<ListenerType> = new Set()
+
+  function subscribe(listener) {
+    listeners.add(listener)
+    return () => {
+      listeners.delete(listener)
+    }
+  }
+
+  function dispatch(action: ActionType) {
+    state = reducer(state, action)
+    listeners.forEach(listener => listener())
+  }
+
+  function getState() {
+    return state
+  }
+
+  dispatch({ type: `${performance.now()}` })
+
+  return { subscribe, dispatch, getState }
+}
+
+export function applyMiddleware(...middlewares: MiddlewareType[]) {
+  return (_createStore: typeof createStore) => (reducer: ReducerType) => {
+    const store = _createStore(reducer)
+    let dispatch = store.dispatch
+
+    const midAPI = {
+      getState: store.getState,
+      dispatch: (action: ActionType, ...args: any[]) => dispatch(action, ...args)
+    }
+
+    const middlewareChain = middlewares.map(m => m(midAPI))
+
+    dispatch = compose(...middlewareChian)(dispatch)
+
+    return { ...store, diaptch }
+  }
+}
+```
+
+**utils.ts**
+
+```ts
+export function compose(...fns: Array<(...args: any[]) => any>) {
+  if (!fns.length) return (args: any) => args
+  if (fns.length === 1) return fns
+  
+  return fns.reducer((prevFn, curFn) => (...args: any[]) => prevFn(curFn(...args)))
+}
+```
+
+加强 dispatch 的中间件，首先得有最基本的 dispatch 功能，因此需要一个 `midAPI` 用于分发给各个 dispatch。
+
+每个中间件都拿到这个能力之后就需要用 compose 把各个中间件串联在一起 ( 自动串联调用 )。
+
+对于 compose 函数，结合 index.ts 的上下文，第一个中间件接收的参数就是 store.dispatch。然后该中间件的执行结果返回给下一个中间件，以此类推。
+
+**思考题1：index.ts 中的 midApi 中的 dispatch，可不可以换成 { dispatch: store.dispatch }**
+
+
+
+### 2.2 实现中间件
+
+这里演示两种中间件的演示方式：`redux-logger` 和 `redux-thunk`
+
+* redux.d.ts
+* logger.ts
+* thunk.ts
+
+**redux.d.ts**
+
+```ts
+export type StoreType = {
+  getState(): any
+  dispatch(action: ActionType, ...args: any[]): void
+  subscribe(listener: ListenerType): () => void
+}
+
+type MidAPI = {
+  getState(): any
+  dispatch: StoreType['dispatch']
+}
+
+type NextType = (action: ActionType) => any
+
+export type MiddlewareType = (midAPI: MidAPI) => (...args: any[]) => any
+```
+
+**logger.ts**
+
+```ts
+import type { ActionType, MidAPI, NextType } from '../redux.d'
+
+export function logger(midAPI: MidAPI) {
+  const { getState } = midAPI
+  
+  return (next: NextType) => (action: ActionType) => {
+    console.log(
+      `action ${
+        (action as { type: string }).type
+      } @ ${new Date().toLocaleTimeString()}`,
+    )
+    console.log('%c action', 'color: blue', action)
+    const returnedVal = next(action)
+    const nextState = getState()
+    console.log('%c nextState', 'color: green', nextState)
+    console.log('-----------------')
+    
+    return returnedVal
+  }
+}
+```
+
+**thunk**
+
+```ts
+import type { ActionType, MidAPI, NextType } from '../redux.d'
+
+export function thunk(midAPI: MidAPI) {
+  const { getState, dispatch } = midAPI
+  
+  return (next: NextType) => (action: ActionType) => {
+    if (typeof action === 'function') return action(dispatch, getState)
+    return next(action)
+  }
+}
+```
+
+实现完这两个中间件之后我们再回头来看下 `applyMiddleware` 的实现。
+
+```ts
+const middlewareChain = middlewares.map(m => m(midAPI))
+
+这里 middlewareChain 的类型是一个数组，每个元素的数据格式如以下函数所示：
+(next: NextType) => (action: ActionType) => any
+```
+
+```ts
+dispatch = compose(...middlewareChian)(dispatch)
+
+这里可以发现 next 指的就是 midAPI 中传入的 dispatch，整个中间件的返回值是最终要改变的状态 next(action) <-> dispatch(action)
+
+而中间件的加强，就是在返回值以前所作的处理，如 logger 中的所有 console
+```
+
+
+
+
+
+## 思考题参考答案
+
+**思考题1：index.ts 中的 midApi 中的 dispatch，可不可以换成 { dispatch: store.dispatch }**
+
+```
+不可以。
+
+思考 JS 中函数的存储位置，如果改成
+
+const midAPI = { getState: store.getState, dispatch: store.dispatch }
+
+那每个中间件接收到的 dispatch 都指向同一个，而写成
+
+(action: ActionType, ...args: any[]) => dispatch(action, ...args)
+
+那每个中间件拿到的 dispatch 都不一样，这样就能继承之前中间件的加强效果了。
+
+```
 

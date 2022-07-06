@@ -47,8 +47,9 @@ function applyMiddleware(...middlewares: MiddlewareType[]) {
 
     const midAPI = {
       getState: store.getState,
-      dispatch: (action: ActionType, ...args: any[]) =>
-        dispatch(action, ...args),
+      // dispatch: (action: ActionType, ...args: any[]) =>
+      //   dispatch(action, ...args),
+      dispatch,
     }
 
     const middlewareChain = middlewares.map(m => m(midAPI))
