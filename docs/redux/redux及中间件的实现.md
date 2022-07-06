@@ -380,6 +380,55 @@ dispatch = compose(...middlewareChian)(dispatch)
 
 
 
+## 3. combineReducers
+
+在上面的示例中，我们只传入一个 reducer，但是在项目中通常会需要有多个状态管理，也就是多个 reducer，因此我们需要一个增强方法。
+
+首先看一下使用范式，`combineReducers` 是在定义 store 的时候使用的
+
+```ts
+const store = createStore(combineReducers({ xx: xxReducer }), applyMiddleware(a, b))
+```
+
+在先前对于 `createStore` 的定义中，可以知道第一个参数的类型是 ReducerType，因此 combineReducer 的执行结果一定是 ReducerType。
+
+**注意：redux 是一个轻量型框架，对于它的任何功能任何拓展最终形态都得是该功能的初始定义形态**。
+
+**combineReducers.ts**
+
+```ts
+import type { ActionType, ReducerType } from './redux.d'
+
+export function combineReducers(reducers: Record<string, ReducerType>) {
+  // 经过上文的分析，可以知道这个 combination() 就是一个 reducer
+  return combination(state: Record<string, any> = {}, action: ActionType) {
+    // 下一状态
+    const nextState: Record<string, any> = {}
+    // 按需更新标志，如果为 false 表示状态没更新，返回当前状态避免组件更新
+    let hasChanged = false
+    
+    Object.keys(reducers).forEach(key => {
+      const reducer = reducers[key]
+      nextState[key] = reducer(state[key], action)
+      hasChanged = hasChanged || state[key] !== nextState[key]
+    })
+    
+    hasChanged = hasChanged || Object.keys(nextState).length !== Object.keys(state).length
+    
+    return hasChanged ? nextState : state
+  }
+}
+```
+
+`combineReducers` 道理非常简单，从原来的直接 `store.getState()` 变成  `store.getState().xxx`，说明现在的 state 是一个对象，这点在上面的类型定义也体现得非常清楚。
+
+其次我们需要控制组件的更新，非必要不更新。更新判断标准如下：
+
+* 其中有 reducer 的状态发生变化
+* 前后状态数量不一致
+
+如果不需更新，直接返回当前状态，这样浅比较对象的时候会判断相等，自然不会更新。
+
 
 
 ## 思考题参考答案
