@@ -30,7 +30,7 @@ export default function ReduxExample() {
   return (
     <div>
       <h3>redux page</h3>
-      <p>{store.getState()}</p>
+      <p>{store.getState().counter}</p>
       <button onClick={handleAdd}>add</button>
       <button onClick={asyncMinus}>async minus</button>
     </div>

@@ -6,6 +6,7 @@ import type {
   StoreType,
 } from './redux.d'
 import { logger, thunk } from './middlewares'
+import { combineReducers } from './combineReducers'
 import { compose } from './utils'
 
 function createStore(
@@ -60,4 +61,4 @@ function applyMiddleware(...middlewares: MiddlewareType[]) {
   }
 }
 
-export { createStore, applyMiddleware, logger, thunk }
+export { createStore, applyMiddleware, logger, thunk, combineReducers }
