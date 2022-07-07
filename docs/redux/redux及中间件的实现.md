@@ -431,6 +431,191 @@ export function combineReducers(reducers: Record<string, ReducerType>) {
 
 
 
+## 4. react-redux
+
+经过上面的实现，我们已经基本实现了一个状态管理仓库。但组件应用的时候还不是很自然，比如说每个组件都要手动订阅，这个时候我们自然希望使用 redux 的组件能够更加自然，比如说仓库的状态值和 dispatch 可以通过组件的参数获取。
+
+首先来看下使用范式：
+
+```tsx
+import type { StoreType } from '@redux/redux'
+import { useCallback } from 'react'
+import { Provider, connect } from '@redux/react-redux'
+import { bindActionCreators } from '@redux'
+import store from './store'
+
+export default function ReduxExample() {
+  return (
+    <Provider store={store}>
+      <ReduxExampleContent />
+    </Provider>
+  )
+}
+
+const mapStateToProps = (state: Record<string, any>) => {
+  const { counter } = state
+  return { counter }
+}
+
+//* 函数形式的 mapDispatchToProps
+const mapDispatchToProps = (dispatch: StoreType['dispatch']) => {
+  let creators = {
+    add: () => ({ type: 'ADD' }),
+    minus: () => ({ type: 'MINUS' }),
+  }
+
+  creators = bindActionCreators(creators, dispatch) as any
+  return { dispatch, ...creators }
+}
+
+//* 对象形式的 mapDispatchToProps
+// const mapDispatchToProps = {
+//   add: () => ({ type: 'ADD' }),
+//   minus: () => ({ type: 'MINUS' }),
+// }
+
+const ReduxExampleContent = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)((props: any) => {
+  const { counter, dispatch, add, minus } = props
+
+  console.log(props)
+
+  const manuallyAdd = useCallback(() => {
+    dispatch({ type: 'ADD' })
+  }, [])
+
+  return (
+    <div>
+      <h3>ReactReduxPage</h3>
+      <p>count: {counter}</p>
+      <button onClick={add}>add</button>
+      <button onClick={manuallyAdd}>manuallyAdd</button>
+      <button onClick={minus}>minus</button>
+    </div>
+  )
+})
+```
+
+通过观察范式我们可以得到以下结论：
+
+* 在使用 redux 的组件需要被 redux 提供的 `Provider` 组件包裹
+
+* 使用 redux 的组件需要调用 `connect` 方法
+
+  * connect 的第一个参数是 `mapStateToProps`，它是一个函数，返回一个对象，这个对象就是想要的状态值
+
+  * connect 的第二个参数是 `mapDispatchToProps`，它可以是一个对象，也可以是一个函数
+
+    * 当其为对象是，其数据格式如下
+      ```ts
+      type MapDispatchToProps = Record<string, () => { type: string }>
+      ```
+
+    * 当其为函数时，接收 store.dispatch 作为参数，返回一个对象，这个对象是仓库的各个 dispatch 方法
+
+      这时需要使用 `bindActionCreators` 手动对定义的 `creators` 包装
+
+
+
+**bindActionCreators**
+
+首先了解一下这个函数的作用，它接收的 creators 类似如下结构
+
+```ts
+let creators = {
+  add: () => ({ type: 'ADD' }),
+  minus: () => ({ type: 'MINUS' }),
+}
+```
+
+我们可以看到这里并没有 dispatch，而要更新仓库状态值就必须 `dispatch(action)`，因此要对 creators 包装一下。
+
+这个方法定义在 redux 中。
+
+**redux/index.ts**
+
+```ts
+type Creators = Record<string, () => ({ type: string })>
+
+export function bindActionCreators(creators: Creators, dispatch: StoreType['dispatch']) {
+  const obj: Record<string, (...args: any[]) => ReturnType<StoreType['dispatch']>> = {}
+
+  Object.keys(creators).forEach(k => {
+    const creator = cerators[k]
+    obj[k] = (...args) => dispatch(creator(...args))
+  })
+
+  return obj
+}
+```
+
+
+
+**react-redux.tsx**
+
+```tsx
+type ProviderProps = { store: StoreType; children: JSX.Element | JSX.Element[] }
+
+type MapStateToProps = (state: Record<string, any>) => Record<string ,any>
+
+type MapDispatchToProps =
+	| Record<string, any>
+	| (dispatch: StoreType['dispatch']) => Record<string, any>
+
+const StoreContext = createContext<StoreType>({} as StoreType)
+
+export function Provider(props: ProviderProps) {
+  const { store, children } = props
+  return (
+    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
+  )
+}
+
+export function connect(mapStateToProps: MapStateToProps, mapDispatchToProps: MapDispatchToProps) {
+  return (WrappedComponent: any) => (props: Record<string, any>) => {
+    const { getState, dispatch, subscribe } = useContext(StoreContext)
+    const forceUpdate = useForceUpdate()
+    
+    const stateProps = mapStateToProps(getState())
+    
+    let dispatchProps: Record<string, any> = { dispatch }
+    
+    if (typeof mapDispatchToProps === 'function') {
+      dispatchProps = mapDispatchToProps(dispatch)
+    } else if (typeof mapDispatchToProps === 'object') {
+      dispatchProps = bindActionCreators(mapDispatchtoProps)
+    }
+    
+    useLayoutEffect(() => {
+      const unsubscribe = subscribe(forceUpdate)
+      return () => {
+        unscuscribe()
+      }
+    }, [])
+    
+    return <WrappedComponent {...props} {...stateProps} />
+  }
+  
+}
+
+function useForceUpdate() {
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
+  return forceUpdate
+}
+```
+
+至此，react-redux 就基本实现完毕了。
+
+总结一下，react-redux 整体通过 context 使得项目的组件可以拿到全局的仓库，Provider 就是 context.Provider，而接收 context 方法在 connect 中实现，并把相关值通过 props 的形式传给被包装的组件。
+
+有一点值得注意的是，如果 mapDispatchToProps 是函数，那得手动使用 `bindActionCreators` 对自定义 creators 进行包装；而如果是对象形式，不是不需要包装了，只是我们在 connect 里面帮忙处理了，因此在调用层用户感知不到。
+
+**思考题2：connect() 的实现中，能否将 useEffect 替换成 useLayoutEffect**
+
+
+
 ## 思考题参考答案
 
 **思考题1：index.ts 中的 midApi 中的 dispatch，可不可以换成 { dispatch: store.dispatch }**
@@ -448,5 +633,20 @@ const midAPI = { getState: store.getState, dispatch: store.dispatch }
 
 那每个中间件拿到的 dispatch 都不一样，这样就能继承之前中间件的加强效果了。
 
+```
+
+**思考题2：connect() 的实现中，能否将 useEffect 替换成 useLayoutEffect**
+
+```
+不可以。
+
+对于订阅方法，必须使用 DOM 提交之后马上执行的 useLayoutEffect，否则有可能会出现初始值没渲染出来的情况。
+
+复习一下 react 在 commit 阶段的步骤
+	1. 在 DOM 提交前执行 useEffect，这个方法是异步的
+	2. 提交 DOM
+	3. 执行 useLayoutEffect，这个方法是同步的
+	
+我们必须在 DOM 挂载之后马上进行订阅，以确保不漏过初始值。
 ```
 
