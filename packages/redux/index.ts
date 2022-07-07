@@ -61,4 +61,32 @@ function applyMiddleware(...middlewares: MiddlewareType[]) {
   }
 }
 
-export { createStore, applyMiddleware, logger, thunk, combineReducers }
+function bindActionCreators(
+  creators: Record<string, () => Record<string, any>>,
+  dispatch: StoreType['dispatch'],
+) {
+  const obj: Record<string, ReturnType<typeof bindActionCreator>> = {}
+
+  Object.keys(creators).forEach(key => {
+    const creator = creators[key]
+    obj[key] = bindActionCreator(creator, dispatch)
+  })
+
+  return obj
+}
+
+function bindActionCreator(
+  creator: (...args: any[]) => Record<string, any>,
+  dispatch: StoreType['dispatch'],
+) {
+  return (...args: any[]) => dispatch(creator(...args) as any)
+}
+
+export {
+  createStore,
+  applyMiddleware,
+  logger,
+  thunk,
+  combineReducers,
+  bindActionCreators,
+}

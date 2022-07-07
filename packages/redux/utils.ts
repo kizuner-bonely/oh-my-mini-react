@@ -1,3 +1,5 @@
+import { useReducer } from 'react'
+
 export function compose(
   ...fns: Array<(...args: any[]) => any>
 ): (...args: any) => any {
@@ -9,4 +11,9 @@ export function compose(
       (...args: any[]) =>
         prev(cur(...args)),
   )
+}
+
+export function useForceUpdate() {
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
+  return forceUpdate
 }
