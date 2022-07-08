@@ -616,6 +616,118 @@ function useForceUpdate() {
 
 
 
+## 5. react-redux 的 hooks
+
+经过上面的时候，我们可以使用 `connect` 这个高阶函数自动订阅，从而让组件能够在参数中拿到状态值和 dispatch。而在函数组件盛行的今天，我们需要 hooks 来更好地帮助我们在函数组件中完成订阅。
+
+这里介绍两个 api 用于 `获取` 和 `改变` 仓库值。
+
+* **useSelector()**   用于获取状态
+* **useDispatch()**  用于获取 dispatch
+
+首先观察一下使用范式
+
+```tsx
+function ReduxHookExampleContent() {
+  const counter = useSelector(({ counter }) => counter)
+  const dispatch = useDispatch()
+
+  const add = useCallback(() => {
+    dispatch({ type: 'ADD' })
+  }, [])
+
+  return (
+    <div>
+      <h3>ReduxHookExampleContent</h3>
+      <p>count: {counter}</p>
+      <button onClick={add}>add</button>
+    </div>
+  )
+}
+```
+
+通过示例我们可以得到以下结论：
+
+* useSelector() 接收一个函数，它接收一个参数 —— 仓库状态值，它的返回值用于展示在 UI 层
+* useDispatch() 直接返回 store.dispatch
+
+**react-redux.tsx**
+
+```tsx
+// ... 上文 react-redux.ts 的内容
+
+type Selector = (state: ReturnType<StoreType['getState']>) => any
+
+export function useSelector(selector: Selector) {
+  const { getState, subscribe } = useContext(StoreContext)
+  
+  const forceUpdate = useForceUpdate()
+  useLayoutEffect(() => {
+    const unsubscribe = subscribe(forceUpdate)
+    return () => {
+      unsubscribe()
+    }
+  }, [])
+  
+  return selector(getState())
+}
+
+export function useDispatch() {
+  const { dispatch } = useContext(StoreContext)
+  return dispatch
+}
+```
+
+至此，我们就可以用 hooks 来实现对 redux 的订阅和更新了。
+
+需要注意的是在获取状态之后记得使组件更新。
+
+**React 18 版本的订阅更新**
+
+在 React 18 有一个 hook api 可以帮助我们更好地完成外部状态的订阅更新，它就是 [`useSyncExternalStore`](https://www.npmjs.com/package/use-sync-external-store)。
+
+以下是它的类型声明。
+
+```ts
+/**
+  * @param subscribe
+  * @param getSnapshot
+  *
+  * @see https://github.com/reactwg/react-18/discussions/86
+*/
+// keep in sync with `useSyncExternalStore` from `use-sync-external-store`
+export function useSyncExternalStore<Snapshot>(
+subscribe: (onStoreChange: () => void) => () => void,
+ getSnapshot: () => Snapshot,
+ getServerSnapshot?: () => Snapshot,
+): Snapshot;
+```
+
+根据它的类型声明，我们可以将 useSelector 改写成以下形式
+
+```ts
+type Selector = (state: ReturnType<StoreType['getState']>) => any
+
+export function useSelector(selector: Selector) {
+  const { getState, subscribe } = useContext(StoreContext)
+  
+  const forceUpdate = useForceUpdate()
+  const state = useSyncExternalStore(() => subscribe(forceUpdate), getState)
+  
+  return selector(state)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
 ## 思考题参考答案
 
 **思考题1：index.ts 中的 midApi 中的 dispatch，可不可以换成 { dispatch: store.dispatch }**
