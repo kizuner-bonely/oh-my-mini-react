@@ -1,6 +1,6 @@
 import type { StoreType } from './redux.d'
 import { useForceUpdate } from './utils'
-import { createContext, useContext, useLayoutEffect } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect } from 'react'
 import { bindActionCreators } from '@redux'
 
 type ProviderProps = { store: StoreType; children: JSX.Element | JSX.Element[] }
@@ -49,4 +49,25 @@ export function connect(
 
     return <WrappedComponent {...props} {...stateMap} {...dispatchMap} />
   }
+}
+
+export function useSelector(
+  selector: (state: any) => ReturnType<StoreType['getState']>,
+) {
+  const { getState, subscribe } = useContext(StoreContext)
+
+  const forceUpdate = useForceUpdate()
+  useEffect(() => {
+    const unsubscribe = subscribe(forceUpdate)
+    return () => {
+      unsubscribe()
+    }
+  }, [])
+
+  return selector(getState())
+}
+
+export function useDispatch() {
+  const { dispatch } = useContext(StoreContext)
+  return dispatch
 }
