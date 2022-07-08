@@ -1,6 +1,12 @@
 import type { StoreType } from './redux.d'
 import { useForceUpdate } from './utils'
-import { createContext, useContext, useEffect, useLayoutEffect } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+  useLayoutEffect,
+} from 'react'
 import { bindActionCreators } from '@redux'
 
 type ProviderProps = { store: StoreType; children: JSX.Element | JSX.Element[] }
@@ -57,14 +63,16 @@ export function useSelector(
   const { getState, subscribe } = useContext(StoreContext)
 
   const forceUpdate = useForceUpdate()
-  useEffect(() => {
-    const unsubscribe = subscribe(forceUpdate)
-    return () => {
-      unsubscribe()
-    }
-  }, [])
+  // useEffect(() => {
+  //   const unsubscribe = subscribe(forceUpdate)
+  //   return () => {
+  //     unsubscribe()
+  //   }
+  // }, [])
+  // return selector(getState())
 
-  return selector(getState())
+  const state = useSyncExternalStore(() => subscribe(forceUpdate), getState)
+  return selector(state)
 }
 
 export function useDispatch() {
