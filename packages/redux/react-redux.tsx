@@ -63,7 +63,7 @@ export function useSelector(
   const { getState, subscribe } = useContext(StoreContext)
 
   const forceUpdate = useForceUpdate()
-  // useEffect(() => {
+  // useLayoutEffect(() => {
   //   const unsubscribe = subscribe(forceUpdate)
   //   return () => {
   //     unsubscribe()
