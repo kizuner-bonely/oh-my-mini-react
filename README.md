@@ -109,3 +109,40 @@
 
     按需注释和解开注释
 
+* **redux**
+
+  * 启动
+
+    * 修改 React 启动方式 `/src/main.tsx`
+      ```tsx
+      import ReactDOM from 'react-dom/client'
+      import App from './App'
+      import './index.css'
+      
+      ReactDOM.createRoot(document.getElementById('root')!).render(<App />)
+      ```
+
+    * 更换渲染组件 `/src/App.tsx`
+
+      ```tsx
+      import ReduxExample from './pages/reduxExample/ReduxExample'
+      import './App.less'
+      
+      function App() {
+        return (
+          <div className="App">
+            <ReduxExample />
+          </div>
+        )
+      }
+      
+      export default App
+      ```
+
+  * 代码位置
+    ```
+    /packages/redux
+    ```
+
+    
+
