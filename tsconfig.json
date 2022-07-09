@@ -25,6 +25,8 @@
       "@form/*": ["./packages/form/*"],
       "@redux": ["./packages/redux"],
       "@redux/*": ["./packages/redux/*"],
+      "@router": ["./packages/router"],
+      "@router/*": ["./packages/router/*"],
       "@type": ["./packages/react/types"],
       "@type/*": ["./packages/react/types/*"],
       "@utils": ["./utils.ts"],
