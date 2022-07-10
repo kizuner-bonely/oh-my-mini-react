@@ -1,4 +1,4 @@
-import type { RouteType } from './router'
+import type { RouteType } from './router.d'
 
 export function Route(props: RouteType) {
   return (
