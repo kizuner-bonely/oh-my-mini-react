@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react'
+
 type BrowserRouterProps = {
-  children: JSX.Element
+  children: ReactNode
 }
 
 // export const BrowserRouter: FC<BrowserRouterProps> = props => {
@@ -9,5 +11,5 @@ type BrowserRouterProps = {
 
 export function BrowserRouter(props: BrowserRouterProps) {
   const { children } = props
-  return children!
+  return <>{children}</>
 }
