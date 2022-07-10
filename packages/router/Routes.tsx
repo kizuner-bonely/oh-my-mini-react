@@ -18,8 +18,15 @@ function createRoutesFromChildren(children: JSX.Element | JSX.Element[]) {
   const routes: RouteType[] = []
 
   Children.forEach(children, child => {
-    const { element, path } = child.props
+    const { children, element, path } = child.props as RouteType & {
+      children?: JSX.Element | JSX.Element[]
+    }
     const route: RouteType = { element, path }
+
+    if (children) {
+      route.children = createRoutesFromChildren(children)
+    }
+
     routes.push(route)
   })
 

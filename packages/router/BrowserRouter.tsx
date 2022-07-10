@@ -1,15 +1,16 @@
 import type { ReactNode } from 'react'
+import { useRef } from 'react'
+import { createBrowserHistory } from 'history'
+import { Router } from './Router'
 
 type BrowserRouterProps = {
   children: ReactNode
 }
 
-// export const BrowserRouter: FC<BrowserRouterProps> = props => {
-//   const { children } = props
-//   return children
-// }
-
 export function BrowserRouter(props: BrowserRouterProps) {
   const { children } = props
-  return <>{children}</>
+
+  const navigator = useRef(createBrowserHistory()).current
+
+  return <Router navigator={navigator}>{children}</Router>
 }
