@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { ReactNode, useLayoutEffect, useState } from 'react'
 import { useRef } from 'react'
 import { createBrowserHistory } from 'history'
 import { Router } from './Router'
@@ -12,5 +12,17 @@ export function BrowserRouter(props: BrowserRouterProps) {
 
   const navigator = useRef(createBrowserHistory()).current
 
-  return <Router navigator={navigator}>{children}</Router>
+  const [locationObj, setLocationObj] = useState({
+    location: navigator.location,
+  })
+
+  useLayoutEffect(() => {
+    navigator.listen(setLocationObj)
+  }, [])
+
+  return (
+    <Router navigator={navigator} location={locationObj.location}>
+      {children}
+    </Router>
+  )
 }

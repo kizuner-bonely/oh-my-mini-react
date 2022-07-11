@@ -1,8 +1,9 @@
 import type { RouteType } from '../router.d'
+import { useLocation } from './useLocation'
 
 export function useRoutes(routes: RouteType[]) {
-  // todo 暂时这么取当前的路由地址
-  const pathname = window.location.pathname
+  const location = useLocation()
+  const pathname = location.pathname
 
   return (
     routes
