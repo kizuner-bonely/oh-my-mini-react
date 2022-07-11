@@ -1,4 +1,4 @@
-import type { RouteType } from './router.d'
+import type { RouteType } from '../router.d'
 
 export function useRoutes(routes: RouteType[]) {
   // todo 暂时这么取当前的路由地址

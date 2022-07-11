@@ -1,4 +1,4 @@
-import type { RouteType } from './router.d'
+import type { RouteType } from '../router'
 
 type RouteTypeProps = Pick<RouteType, 'path' | 'element'> & {
   children?: JSX.Element | JSX.Element[]

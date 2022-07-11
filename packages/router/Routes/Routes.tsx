@@ -1,6 +1,6 @@
 import { Children } from 'react'
 import { useRoutes } from './useRoutes'
-import type { RouteType } from './router.d'
+import type { RouteType } from '../router.d'
 
 type RoutesProps = {
   children: JSX.Element | JSX.Element[]
