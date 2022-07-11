@@ -1,6 +1,6 @@
 import type { BrowserHistory, Location } from 'history'
 import type { ReactNode } from 'react'
-import { useRef } from 'react'
+import { useMemo } from 'react'
 import { RouterContext } from './routerContext'
 
 type RouterProps = {
@@ -10,8 +10,10 @@ type RouterProps = {
 }
 
 export function Router(props: RouterProps) {
-  const { navigator, children } = props
-  const routerService = useRef({ navigator, location }).current
+  const { navigator, location, children } = props
+  const routerService = useMemo(() => {
+    return { navigator, location }
+  }, [navigator, location])
 
   return (
     <RouterContext.Provider value={routerService}>

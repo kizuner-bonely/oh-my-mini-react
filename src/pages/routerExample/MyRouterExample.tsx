@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from '@router'
+import { BrowserRouter as Router, Routes, Route, Link, Outlet } from '@router'
 import styles from './router.module.less'
 
 export default function MyRouterExample() {
@@ -20,7 +20,7 @@ function Layout() {
       <Link to="/">首页</Link>
       <Link to="/product">商品</Link>
 
-      {/* <Outlet /> */}
+      <Outlet />
     </div>
   )
 }
