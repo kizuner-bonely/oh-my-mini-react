@@ -1,6 +1,10 @@
 import type { RouteType } from './router.d'
 
-export function Route(props: RouteType) {
+type RouteTypeProps = Pick<RouteType, 'path' | 'element'> & {
+  children?: JSX.Element | JSX.Element[]
+}
+
+export function Route(props: RouteTypeProps) {
   return (
     <div>
       <h3>Route</h3>
