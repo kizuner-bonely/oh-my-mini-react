@@ -31,6 +31,7 @@ export function useRoutes(routes: RouteType[]) {
             }
           })
         }
+        return route.element
       })
   )
 }
