@@ -586,7 +586,214 @@ export function useLocation() {
 
 
 
+## 4.  实现路由渲染
+
+目前我们已经可以实现第一级的路由渲染，但是其子路由还没出现。
+
+在 `react-router6` 中，子路由页面的渲染需要通过 `<Outlet>` 展示出来。
+
+先看一下更新后的 demo。
+
+```tsx
+import { BrowserRouter as Router, Routes, Route, Link, Outlet } from '@router'
+import styles from './router.module.less'
+
+export default function MyRouterExample() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="product" element={<Product />} />
+        </Route>
+      </Routes>
+    </Router>
+  )
+}
+
+function Layout() {
+  return (
+    <div className={styles.layout}>
+      <Link to="/">首页</Link>
+      <Link to="/product">商品</Link>
+
+      <Outlet />
+    </div>
+  )
+}
+
+function Home() {
+  return (
+    <div>
+      <h1>Home</h1>
+    </div>
+  )
+}
+
+function Product() {
+  return (
+    <div>
+      <h1>Product</h1>
+    </div>
+  )
+}
+```
+
+`<Route>` 和它的渲染组件对应关系如下
+
+```
+Route ( Layout )
+	- Route ( Home )
+	- Route ( Product )
+	
+Layout
+	- Home
+	- Product
+```
+
+很明显，`<Outlet>` 要放在 `<Layout>` 组件中，才能将 `<Home>` 和 `<Product>` 渲染出来。
+
+* routerContext.ts
+* BrowserRouter.tsx
+  * routerContext.ts
+* Router.tsx
+* Routes.tsx
+  * <span style="color:red">routesContext.ts</span>
+  * <span style="color:red">useRoutes.ts</span>
+    * useLocation.tsRoute.tsx
+* <span style="color:red">Outlet.tsx</span>
+  * <span style="color:red">useOutlet.ts</span>
+* Link.tsx
+  * useNavigate.tsx
+* <span style="color:red">utils.ts</span>
+
+**routesContext.ts**
+
+```ts
+import { createContext } from 'react'
+
+type RoutesService = {
+  outlet: JSX.Element
+}
+
+export type RoutesContext = createContext<RoutesService>({} as RoutesService)
+```
 
 
 
+**useRoutes.ts**
 
+```tsx
+import type { RouteType } from '../router'
+import { RoutesContext } from './routesContext'
+import { normalizePathname } from '../utils'
+import { useLocation } from './useLocation'
+import { Outlet } from '@router/Outlet/Outlet'
+
+export function useRoutes(routes: RouteType[]) {
+  const location = useLocation()
+  const pathname = location.pathname
+  
+  return (
+  	routes
+    	.filter(r => pathname.startsWith(r.path))
+    	.map(route => {
+        if (route.children) {
+          const c = Array.isArray(route.children) ? route.children : [route.children]
+          
+          return c.map(child => {
+            const match = normalizePathname(child.path) === pathname
+            if (match) {
+              return (
+              	<RoutesContext.Provider value={{ outlet: child.element as JSX.Element }}>
+                	{route.element !== undefined ? route.element : <Outlet />}
+                </RoutesContext.Provider>
+              )
+            }
+          })
+        }
+
+        return route.element
+      })
+  )
+}
+```
+
+此处的 `<Routes>` 可以类比为 v5 的 `<Switch>`。
+
+![image-20220712221312230](img/路由渲染示意图.png)
+
+对于 `<Routes>` 的每一个子 `<Route>` 都用 `<RoutesContext.Provider>` 包裹，并将 `outlet` 传下去。
+
+outlet 为子 `<Route>` 的 Element。
+
+```tsx
+<RoutesContext.Provider value={{ outlet: child.element as JSX.Element }}>
+  {route.element !== undefined ? route.element : <Outlet />}
+</RoutesContext.Provider>
+```
+
+
+
+回顾一下demo，当前的目录结构为：
+
+```tsx
+<Routes>
+  <Route path="/" element={<Layout />}>
+    <Route path="/" element={<Home />} />
+    <Route path="product" element={<Product />} />
+  </Route>
+</Routes>
+
+
+function Layout() {
+  return (
+    <div className={styles.layout}>
+      <Link to="/">首页</Link>
+      <Link to="/product">商品</Link>
+
+      <Outlet />
+    </div>
+  )
+}
+```
+
+当路由为 `/product`，`<Routes>` 渲染的是 `<Layout>`，此时 `RoutesContext` 传递的 `outlet` 是 `<Product />`。
+
+所以在父 `<Route />` 里面渲染的 `<Outlet />` 就是 `<Product />`。
+
+
+
+**utils.ts**
+
+```ts
+//*   ///product/detail/// -> /product/detail
+export const normalizePathname = (pathname: string) => {
+  return pathname.replace(/\/+$/, '').replace(/^\/*/, '/')
+}
+```
+
+**Outlet.tsx**
+
+```tsx
+import { useOutlet } from './useOutlet'
+
+export function Outlet() {
+  const outlet = useOutlet()!
+	return outlet
+}
+```
+
+**useOutlet.ts**
+
+```ts
+import { RoutesContext } from '../Routes/routesContext'
+import { useContext } from 'react'
+
+export function useOutlet() {
+  const { outlet } = useContext(RoutesContext)
+  return outlet
+}
+```
+
+`<Outlet>` 的原理很简单，就是接收并渲染跟自己最近的 `<Route>` 的 Provider 提供的 `outlet`。
