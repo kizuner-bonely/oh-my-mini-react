@@ -1,4 +1,4 @@
-import { RoutesContext } from '../LayoutRouter/routesContext'
+import { RoutesContext } from './routesContext'
 import { normalizePathname } from '../utils'
 import type { RouteType } from '../router'
 import { useLocation } from './useLocation'
