@@ -451,6 +451,141 @@ export function useNavigate() {
 
 
 
+## 3. 实时监听路由
+
+在目前的实现中，我们使用的 window.location.pathname 进行路由的获取。这种方法有一个缺陷就是不能实时根据跳转的路由渲染，也就是只能渲染一遍，因此我们需要有一个状态来实现实时监听。
+
+在 history 中有一个 location 对象可以帮助完成这个工作。
+
+![image-20220712162331418](img/router实现动态路由监听.png)
+
+从图中可以知道，可以在 Router 那将 location 传下去，然后 `<Routes>` 根据传下来的 location 进行路由渲染。
+
+* routerContext.ts
+* BrowserRouter.tsx
+* Router.tsx
+* Routes.tsx
+  * useRoutes.ts
+    * useLocation.ts
+
+
+
+**routerContext.ts**
+
+```ts
+import type { BrowserHistory, Location } from 'history'
+import { createContext } from 'react'
+
+type RouterService = {
+  navigator: BrowserHistory
+  location: Location
+}
+
+export const RouterContext = createContext<RouterService>({} as RouterService)
+```
+
+此时的 `RouterContext` 相比之前的实现多了个 `location`。
+
+**BrowserRouter.tsx**
+
+```tsx
+import type { ReactNode } from 'react'
+import { useLayoutEffect, useState } from 'react'
+import { createBrowserRouter } from 'history'
+import { Router } from './Router'
+
+type BrowserRouterProps = {
+  children: ReactNode
+}
+
+export function BrowserRouter(props: BrowserRouterProps) {
+  const { children } = props
+  const navigator = useRef(createBrowserRouter()).current
+  
+  const [locationObj, setLocationObj] = useState({ location: navigator.location })
+  
+  useLayoutEffect(() => {
+    navigator.listen(setLocationObj)
+  }, [])
+  
+  return (
+  	<Router navigator={navigator} location={locationObj.location}>
+    	{children}
+    </Router>
+  )
+}
+```
+
+当前组件实现比之前多了一个 `locationObj` 这个状态，之所以要设置成对象是因为在订阅时，当路由发生变化后会重新赋值，值类型为带 `location` 字段的对象，因此这里使用对象类型作为状态会更加方便。
+
+另外一个老生常谈的问题是初始化订阅要使用 `useLayoutEffect`。
+
+`useEffect` 是在 dom 提交前异步执行，而 `useLayoutEffect` 是在 dom 提交后同步执行，为了能准确拿到初始值，关于订阅的方法最好都在 `useLayoutEffect` 中使用。
+
+**Router.tsx**
+
+```tsx
+import type { BrowserHistory, Location } from 'history'
+import type { ReactNode } from 'react'
+import { useMemo } form 'react'
+import { RouterContext } from './routerContext'
+
+type RouterProps = {
+  navigator: BrowserHistory
+  location: Location
+  children: ReactNode
+}
+
+export function Router(props: RouterProps) {
+  const { navigator, location, children } = props
+  
+  const routerService = useMemo(() => {
+    return { navigator, location }
+  }, [location])
+  
+  return (
+  	<RouterContext.Provider value={routerService}>
+    	{children}
+    </RouterContext.Provider>
+  )
+}
+```
+
+在之前的实现中我们使用的是 `useRef` 来实现 `routerService`，那是因为 `BrowserHistory` 只要实例化一次就行了，但是现在 `location` 会随着路由的变化而变化，因此需要使用 `useMemo` 来动态变化。
+
+**useRoutes.ts**
+
+```ts
+import type { RouteType } from './router.d'
+import { useLocation } from './useLocation'
+
+export function useRoutes(routes: RouteType[]) {
+  const location = useLocation()
+  const pathname = location.pathname
+  
+  return routes
+  	// 渲染子路由的时候必渲染父路由，如果只用全等来判断只能匹配路由名完全相等的
+  	.filter(r => pathname.startsWith(r.path))
+  	.map(route => route.element)
+}
+```
+
+**useLocation.ts**
+
+```ts
+import { useContext } from 'react'
+import { RouterContext } from '../LayoutRouter/routerContext'
+
+export function useLocation() {
+  const { location } = useContext(RouterContext)
+  return location
+}
+```
+
+至此，我们已经可以实时获取最新路由了。
+
+
+
 
 
 
