@@ -797,3 +797,163 @@ export function useOutlet() {
 ```
 
 `<Outlet>` 的原理很简单，就是接收并渲染跟自己最近的 `<Route>` 的 Provider 提供的 `outlet`。
+
+
+
+## 5. 实现动态路由渲染
+
+在实现动态路由渲染之前，我们先把前面的在渲染 `<Routes>` 时对于 key 的警告。
+
+既然返回一个数组需要对 key 进行处理，那不返回数组不就行了。而既要不返回数组，又得把需要渲染的嵌套路由渲染出来，唯一的办法就是把各个路由组件按照层级关系组合成一个组件。
+
+为此我们需要一个 react-router-dom 提供的方法 `matchRoutes`，它能将匹配的路由从左往右按层级变成一个数组，这时候我们只需要使用 `reduceRight` 对路由组件进行组合即可。
+
+matchRoutes 的返回结果如下，它会返回当前路由匹配的所有路由组件。
+
+![image-20220713212308668](img/matchRoutes效果.png)
+
+**useRoutes.tsx**
+
+```tsx
+import { RoutesContext } from './routesContext'
+import type { RouteType } from '../router'
+import { useLocation } from './useLocation'
+import { matchRoutes } from 'react-router-dom'
+
+type MatchType = ReturnType<typeof matchRoutes>
+                            
+export function useRoutes(routes: RouteType[]) {
+  const location = useLocation()
+  const pathname = location.pathname
+  
+  const matches = matchRoutes(routes as any, { pathname })
+  return renderMatches(matches)
+}
+
+function renderMatches(matches: MatchType) {
+  if (!matches) return null
+  
+  return matches.reduceRight((outlet, match) => {
+    return (
+    	<RoutesContext.Provider value={{ outlet, matches }}>
+      	{match.route.element || outlet}
+      </RoutesContext.Provider>
+    )
+  }, null as any)
+}
+```
+
+这里的渲染逻辑很简单，对于每一个 `<Routes>`，如果有 element 就用自己的 element，如果没有就用子孙组件的。
+
+**注意，**这里说的是子孙组件，因为理论上可以存在连续几个 `<Routes>` 都没有自己 element 的情况，这个时候就用子孙 `<Route>` 的第一个 element。
+
+至此，key 警告就已经消除了。
+
+
+
+为了体现动态路由，先更新一下 demo
+
+```tsx
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Outlet,
+  useNavigate,
+  useParams,
+} from '@router'
+import styles from './router.module.less'
+
+export default function MyRouterExample() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="product" element={<Product />}>
+            <Route path=":id" element={<ProductDetail />} />
+          </Route>
+        </Route>
+      </Routes>
+    </Router>
+  )
+}
+
+function Layout() {
+  return (
+    <div className={styles.layout}>
+      <Link to="/">首页</Link>
+      <Link to="/product">商品</Link>
+
+      <Outlet />
+    </div>
+  )
+}
+
+function Home() {
+  return (
+    <div>
+      <h1>Home</h1>
+    </div>
+  )
+}
+
+function Product() {
+  return (
+    <div>
+      <h1>Product</h1>
+      <Link to="/product/123">商品详情</Link>
+
+      <Outlet />
+    </div>
+  )
+}
+
+function ProductDetail() {
+  const navigate = useNavigate()
+  const params = useParams()
+
+  return (
+    <div>
+      <h1>ProductDetail</h1>
+      <p>{params?.id}</p>
+      <button onClick={() => navigate('/')}>go home</button>
+    </div>
+  )
+}
+
+```
+
+相比上一版本的 demo，该版本添加了 `<ProductDetail>` 组件。
+
+在渲染路由中，`<ProductDetail>` 在 `<Product>` 之下，也就是说在路由 `/product` 之后才会渲染 `<ProductDetail>`。
+
+由于在上文我们使用了 `matchRoutes()` 负责路由渲染，因此当匹配到 `<ProductDetail>` 之后，会自动帮助处理动态路径。
+
+把 `<ProductDetail>` 中关于 params 的代码注释掉之后可以发现页面是正常显示的。
+
+接下来就关注怎么实现 `useParams` 即可。
+
+当在路由中输入 `/product/123` 之后，我们可以通过 `RoutesContext` 得到以下 matches
+
+![image-20220713223744045](img/动态路由matches.png)
+
+很明显，`<ProductDetail>` 匹配的路由元素是最后一个。在获取 `params` 时，为了保证准确性，我们最好从 matches 的最后一个元素那取，因为 params 在传递的过程中可能发生改变。
+
+**useParams.ts**
+
+```ts
+import { useContext } from 'react'
+import { RoutesContext } from '@router/Routes/routesContext'
+
+export function useParams() {
+  const { matches } = useContext(RoutesContext)
+  return matches?.[matches?.length - 1].params
+}
+```
+
+至此，动态路由渲染的实现就完成了。 
+
+
+
