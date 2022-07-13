@@ -1,37 +1,29 @@
 import { RoutesContext } from './routesContext'
-import { normalizePathname } from '../utils'
 import type { RouteType } from '../router'
 import { useLocation } from './useLocation'
-import { Outlet } from '@router/Outlet/Outlet'
+import { matchRoutes } from 'react-router-dom'
+// import { normalizePathname } from '../utils'
+// import { Outlet } from '@router/Outlet/Outlet'
+
+type MatchType = ReturnType<typeof matchRoutes>
 
 export function useRoutes(routes: RouteType[]) {
   const location = useLocation()
   const pathname = location.pathname
 
-  return (
-    routes
-      // 渲染子路由的时候必渲染父路由，如果只用全等来判断，只能路由名完全相等的
-      .filter(r => pathname.startsWith(r.path))
-      .map(route => {
-        if (route.children) {
-          const c = Array.isArray(route.children)
-            ? route.children
-            : [route.children]
+  const matches = matchRoutes(routes as any, { pathname })
 
-          return c.map(child => {
-            const match = normalizePathname(child.path) === pathname
-            if (match) {
-              return (
-                <RoutesContext.Provider
-                  value={{ outlet: child.element as JSX.Element }}
-                >
-                  {route.element !== undefined ? route.element : <Outlet />}
-                </RoutesContext.Provider>
-              )
-            }
-          })
-        }
-        return route.element
-      })
-  )
+  return renderMatches(matches)
+}
+
+function renderMatches(matches: MatchType) {
+  if (!matches) return null
+
+  return matches.reduceRight((outlet, match) => {
+    return (
+      <RoutesContext.Provider value={{ outlet, matches }}>
+        {match.route.element || outlet}
+      </RoutesContext.Provider>
+    )
+  }, null as any)
 }
