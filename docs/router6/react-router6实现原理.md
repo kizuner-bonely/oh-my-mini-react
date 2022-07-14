@@ -1,3 +1,5 @@
+# 手写篇
+
 ## 1. 最简实现
 
 首先来看一下最简使用范式
@@ -954,6 +956,274 @@ export function useParams() {
 ```
 
 至此，动态路由渲染的实现就完成了。 
+
+
+
+# 应用篇
+
+## 路由守卫
+
+一般项目中，通常会区分 登录/游客 状态，或者有些会员能浏览到非会员不能浏览到的页面，这个时候就需要路由守卫。
+
+这里演示 `react-router6` 的一种实现方式。
+
+* auth.tsx  用于提供路由守卫服务
+* RouteGuard.tsx  路由守卫应用
+
+我们的实现思路是，将验证态放在一个路由 context 中，然后封装该 context 的提供者和消费者，对需要路由守卫的 Route 进行包裹。
+
+**auth.tsx**
+
+```tsx
+import { ReactNode, useContext } from 'react'
+import { createContext, useCallback, useMemo, useState } from 'react'
+
+// 一个假登录/登出方法
+export const fakeAuthProvider = {
+  isAuthenticated: false,
+  signIn(callback: (...args: any[]) => any) {
+    fakeAuthProvider.isAuthenticated = true
+    setTimeout(callback, 100) // fake async
+  },
+  signOut(callback: (...args: any[]) => any) {
+    fakeAuthProvider.isAuthenticated = false
+    setTimeout(callback, 100)
+  },
+}
+
+//! 路由守卫具体实现
+type AuthContextType = {
+  user: string | FormDataEntryValue | null
+  signIn: (
+  	username: string | FormDataEntryValue | null,
+  	callback?: () => void
+  ) => void
+  signOut: (callback?: () => void) => void
+}
+
+const AuthContext = createContext<AuthContextType>({} as AuthContextType)
+
+type AuthProviderProps = {
+  children: ReactNode
+}
+
+export function AuthProvider(props: AuthProviderProps) {
+  const [user, setUser] = useState<string | FormDataEntryValue | null>(null)
+  
+  const signIn = useCallback(
+    (username: string | FormDataEntryValue | null, callback?: () => void)
+    	setUser(username)
+  		callback?.()
+  	},
+    [],
+  )
+  
+  const signOut = useCallback((callback?: () => void) => {
+    setUser(null)
+    callback?.()
+  }, [])
+  
+  const value = useMemo(() => {
+    return { user, signIn, signOut }
+  }, [user])
+  
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  return useContext(AuthContext)
+}
+```
+
+**RouteGuard.tsx**
+
+```tsx
+import type { FormEvent } from 'react'
+import { useCallback } from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Outlet,
+  useNavigate,
+  useParams,
+  Navigate,
+  useLocation,
+} from 'react-router-dom'
+
+import { AuthProvider, useAuth } from './auth'
+
+import styles from './router.module.less'
+
+export default function RouteGuardExample() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="product" element={<Product />}>
+              <Route path=":id" element={<ProductDetail />} />
+            </Route>
+            <Route
+              path="user"
+              element={
+                <RequireAuth>
+                  <User />
+                </RequireAuth>
+              }
+            />
+            <Route path="login" element={<Login />} />
+            <Route path="*" element={<NoMatched />} />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
+  )
+}
+
+function Layout() {
+  return (
+    <div className={styles.layout}>
+      <Link to="/">首页</Link>
+      <Link to="/product">商品</Link>
+      <Link to="/user">用户中心</Link>
+      <Link to="/login">登录</Link>
+
+      <Outlet />
+    </div>
+  )
+}
+
+function Home() {
+  return (
+    <div>
+      <h1>Home</h1>
+    </div>
+  )
+}
+
+function Product() {
+  return (
+    <div>
+      <h1>Product</h1>
+      <Link to="/product/123">商品详情</Link>
+
+      <Outlet />
+    </div>
+  )
+}
+
+function ProductDetail() {
+  const navigate = useNavigate()
+  const params = useParams()
+
+  return (
+    <div>
+      <h1>ProductDetail</h1>
+      <p>{params?.id}</p>
+      <button onClick={() => navigate('/')}>go home</button>
+    </div>
+  )
+}
+
+function User() {
+  const auth = useAuth()
+  const navigate = useNavigate()
+
+  const handleSignOut = useCallback(() => {
+    auth.signOut(() => navigate('/login'))
+  }, [])
+
+  return (
+    <div>
+      <h1>User</h1>
+      <p>{auth.user!.toString()}</p>
+      <button onClick={handleSignOut}>退出登录</button>
+    </div>
+  )
+}
+
+function Login() {
+  const auth = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as any)?.from.pathname ?? '/'
+
+  const submit = useCallback((e: FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(e.currentTarget)
+    const username = formData.get('username')
+
+    auth.signIn(username, () => {
+      navigate(from, { replace: true })
+    })
+  }, [])
+
+  if (auth.user) {
+    return <Navigate to={from} />
+  }
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={submit}>
+        <input type="text" name="username" />
+        <button type="submit">login</button>
+      </form>
+    </div>
+  )
+}
+
+function NoMatched() {
+  return (
+    <div>
+      <h1>NoMatched</h1>
+    </div>
+  )
+}
+
+type RequireAuthProps = {
+  children: JSX.Element
+}
+
+function RequireAuth(props: RequireAuthProps) {
+  const { children } = props
+  const location = useLocation()
+  const auth = useAuth()
+
+  if (!auth.user) {
+    return <Navigate state={{ from: location }} to="/login" replace />
+  }
+
+  return children
+}
+
+```
+
+要应用路由守卫，首先要对 `<Router>` 用 `<AuthProvider>` 进行包裹，这样路由组件才能通过 `useAuth()` 获取当前用户状态。
+
+然后要封装路由守卫的实现组件 `<RequireAuth>`，用它来包裹需要验证用户状态的组件，其实现非常简单，思路就是先通过 `useAuth()` 获取当前用户状态，然后进行判断，如果已登录就返回其本应渲染的组件，如果未登录就返回登录页。
+
+当然我们可以用多个 context 来实现不同角度的验证，比如验证是否登录、是否为会员、如果是会员等级有多高等等。
+
+最后需要注意的是，在登录组件有个 from 变量
+
+```ts
+const from = (location.state as any)?.from.pathname ?? '/'
+```
+
+它的作用是，假如用户直接通过路由访问某个需要登录才能访问的页面，这时候被送到了登录页，然后用户在登录之后应该直接跳到登录前访问的页面，而不是回到首页。这种场景常见于在某些页面待的时间太长导致登录 token 过期，再访问时就自动跳转到登录页，当然也可以做个轮询，当检查到 token 过期直接导航到登录页。
+
+还有一种场景是没有相应的会员权限，然后用户充值之后应该直接跳到购买权限前访问的页面。
+
+如果用户是直接访问的登录页，那登录之后就直接跳到首页好了。
+
+要注意这里的 ts 写法，目前为止，官方提供的类型 Location，对于 `Location.state` 的定义是 unknown，但是打印 location 时可以发现这个访问路径确实是正确的，因此这里用一个兼容写法 `(location.state as any)`。当然这个问题可能会在后续版本中得到修复。
+
+
+
+
 
 
 
