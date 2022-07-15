@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useCallback } from 'react'
+import { useCallback, lazy, Suspense } from 'react'
 
 import {
   BrowserRouter as Router,
@@ -12,6 +12,12 @@ import {
   Navigate,
   useLocation,
 } from '@router'
+
+const About = lazy(() =>
+  import('./About').then(({ About }) => ({
+    default: About,
+  })),
+)
 
 // import {
 //   BrowserRouter as Router,
@@ -47,6 +53,14 @@ export default function RouteGuardExample() {
                 </RequireAuth>
               }
             />
+            <Route
+              path="about"
+              element={
+                <Suspense fallback={<h1>loading...</h1>}>
+                  <About />
+                </Suspense>
+              }
+            />
             <Route path="login" element={<Login />} />
             <Route path="*" element={<NoMatched />} />
           </Route>
@@ -61,6 +75,7 @@ function Layout() {
     <div className={styles.layout}>
       <Link to="/">首页</Link>
       <Link to="/product">商品</Link>
+      <Link to="/about">关于</Link>
       <Link to="/user">用户中心</Link>
       <Link to="/login">登录</Link>
 
