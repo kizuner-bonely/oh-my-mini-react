@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react'
 import { useCallback } from 'react'
-import { useNavigate } from './useNavigate'
+import { useNavigate } from '../Navigate/useNavigate'
 
 type LinkProps = {
   to: string

@@ -1,17 +1,6 @@
-import { FormEvent } from 'react'
-
-// import {
-//   BrowserRouter as Router,
-//   Routes,
-//   Route,
-//   Link,
-//   Outlet,
-//   useNavigate,
-//   useParams,
-// } from '@router'
-
-// import { useLocation } from '@router/Routes/useLocation'
+import type { FormEvent } from 'react'
 import { useCallback } from 'react'
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -22,7 +11,19 @@ import {
   useParams,
   Navigate,
   useLocation,
-} from 'react-router-dom'
+} from '@router'
+
+// import {
+//   BrowserRouter as Router,
+//   Routes,
+//   Route,
+//   Link,
+//   Outlet,
+//   useNavigate,
+//   useParams,
+//   Navigate,
+//   useLocation,
+// } from 'react-router-dom'
 
 import { AuthProvider, useAuth } from './auth'
 
@@ -133,7 +134,7 @@ function Login() {
   }, [])
 
   if (auth.user) {
-    return <Navigate to={from} />
+    return <Navigate to={from} replace />
   }
 
   return (
