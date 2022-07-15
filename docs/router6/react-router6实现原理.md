@@ -959,6 +959,101 @@ export function useParams() {
 
 
 
+## 6. 实现 `<Navigate>`
+
+react-router 的路由导航有三种方式
+
+* `<Link>`
+  本质为 a 标签
+
+* `<Navitage>`
+
+  组件形式的导航
+
+* `const history = useHistory()`
+  JS 方法导航
+
+`<Navigate>` 虽然看上去是组件形式的导航，但是底层还是用了 `history`，可以说第二种和第三种方法是互补关系。
+
+在实现 `<Navigate>` 的时候，我们需要对之前实现的 `useNavigate` 也作修改。
+
+* Navigate.tsx
+* useNavigate.ts
+
+**Navigate.tsx**
+
+```tsx
+import type { Location } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate } from './useNavigate'
+
+type NavigateProps = {
+  to: string | number
+  state?: { from: Location }
+  replace?: boolean
+}
+
+export function Navigate(props: NavigateProps) {
+  const { to, state, replace } = props
+  const navigate = useNavigate()
+  
+  useEffect(() => {
+    navigate(to, { state, replace })
+  }, [])
+  
+  return null
+}
+```
+
+注意在 `<Navigate>` 中，该组件并不实际渲染任何元素。
+
+路由导航属于副作用，因此需要写在副作用回调中。
+
+**useNavigate.ts**
+
+```ts
+import type { Location } from 'react-router-dom'
+import { useCallback, useContext } from 'react'
+import { RouterContext } from '../LayoutRouter/routerContext'
+
+type NavigateOptions = {
+  state?: { from: Location }
+  replace?: boolean
+}
+
+export function useNavigate() {
+  const { navigator } = useContext(RouterContext)
+  
+  const navigate = useCallback((to: string | number, options?: NavigateOptions) => {
+    if (typeof to === 'number') return navigate.go(to)
+    
+    if (options?.replace) {
+      navigator.replace(to)
+    } else {
+      navigator.push(to, options?.state)
+    }
+  }, [])
+  
+  return navigate
+}
+```
+
+假设有以下场景，用户点击的路由如下所示
+
+```
+商品详情 -- 自动导航 --> 登录页 -- 登录 --> 跳转到用户中心
+```
+
+当用户登录后，再点返回，这是我们并不希望用户再返回登录页，而是返回之前的“商品详情”页，在这种情况下就需要用 replace 来将登录后跳转到的“用户中心”页替换“登录页”。
+
+```
+商品详情 ----> 用户中心
+```
+
+这时，用户如果点击返回上一路由，就能回到商品详情页了。
+
+![2022-07-15 21.44.39](img/Navigate实现效果.gif)
+
 # 应用篇
 
 ## 路由守卫
