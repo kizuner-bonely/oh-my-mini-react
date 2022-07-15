@@ -1318,6 +1318,35 @@ const from = (location.state as any)?.from.pathname ?? '/'
 
 
 
+## 路由懒加载
+
+在 React 18 中，我们仅需依赖 react 本身的 api 即可实现懒加载。
+
+在这里我们只需要专注业务层。
+
+```tsx
+import { lazy, Suspense } from 'react'
+
+const About = lazy(() => import('./About').then(({ About }) => ({ default: About }));
+
+<Route
+		path="about"
+		element={
+			<Suspense fallback={<h1>loading...</h1>}>
+				<About />
+			</Suspense>
+		}
+/>
+```
+
+这里的路由懒加载技巧基本是 React 18 的内容，需要注意的是使用 `lazy` 的时候，import 之后如果没有 then 会有 ts 报错。
+
+解决方法如上所示，then 中方法解析的内容根据实际导出组件名而决定。
+
+
+
+![2022-07-15 22.00.31](img/路由懒加载.gif)
+
 
 
 
