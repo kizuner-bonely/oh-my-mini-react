@@ -17,3 +17,8 @@ code {
   border: 1px solid red;
   margin: 10px auto;
 }
+
+#slot {
+  width: 80vw;
+  margin: auto;
+}

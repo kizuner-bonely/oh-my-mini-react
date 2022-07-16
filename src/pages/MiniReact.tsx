@@ -20,7 +20,7 @@ export default function MiniReact() {
   }, [num])
 
   return (
-    <>
+    <div className="mini-react">
       <div className="border">
         <h1>react</h1>
         <a href="https://github.com/kizuner-bonely/oh-my-mini-react">
@@ -65,7 +65,7 @@ export default function MiniReact() {
       <ClassComponent name="类组件" />
 
       <FragmentComponent />
-    </>
+    </div>
   )
 }
 
