@@ -1054,6 +1054,80 @@ export function useNavigate() {
 
 ![2022-07-15 21.44.39](img/Navigate实现效果.gif)
 
+## 7. 实现 `<NavLink>`
+
+`<NavLink>` 相比 `<Link>` 的不同是会高亮和当前路由匹配的 `<NavLink>`，其他的会是默认色，不会像普通 a 标签那样点击了之后就一直变成紫红色。
+
+要实现这个目标我们要做到以下两点：
+
+1. 在 `<NavLink>` 中能够获取当前路由；
+2. 能够通过传参方式控制高亮和默认样式。
+
+为了实现获取当前路由这个功能，我们需要借助两个 hook
+
+* useResolvedPath()
+* useMatch()
+
+**useResolvedPath.ts**
+
+```ts
+import { useMemo } from 'react'
+
+epxort function useResolvedPath(to: string) {
+  return useMemo(() => ({ pathname: to, hash: '', search: '' }), [to])
+}
+```
+
+这个 hook 原理比较简单，它是一个辅助 hook，返回一个规定的对象，用于后续匹配处理。
+
+**useMatch.ts**
+
+```ts
+import { useMemo } from 'react'
+import { matchPath } from 'react-router-dom'
+import { useLocation } from '../Routes/useLocation'
+
+type MatchPattern = {
+  path: string
+  end: boolean
+}
+
+export function useMatch(pattern: MatchPattern) {
+  const { pathname } = useLocation()
+  return useMemo(() => matchPath(pattern, pathname), [pathname, pattern])
+}
+```
+
+这个 hook 就是最终判断当前路由是否和本 `<NavLink>` 指定的 `to` 相匹配，获取到的是一个布尔值。
+
+**NavLink.tsx**
+
+```tsx
+import { useResolvedPath } from './useResolvedPath'
+import { useMatch } from './useMatch'
+import { Link } from './Link'
+
+type NavLinkProps = {
+  to: string
+  children: string
+}
+
+export function NavLink(props: NavLinkProps) {
+  const { children, to } = props
+  
+  const resolved = useResolvedPath(to)
+  const match = useMatch({ path: resolved.pathname, end: true })
+  
+  return (
+  	<Link style={{ color: match ? 'red' : '#333' }} to={to}>
+    	{children}
+    </Link>
+  )
+}
+```
+
+![2022-07-16 16.55.24](img/NavLink效果.gif)
+
 # 应用篇
 
 ## 路由守卫
