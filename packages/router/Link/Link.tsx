@@ -1,14 +1,15 @@
-import type { MouseEvent } from 'react'
+import type { MouseEvent, CSSProperties } from 'react'
 import { useCallback } from 'react'
 import { useNavigate } from '../Navigate/useNavigate'
 
 type LinkProps = {
   to: string
   children: string
+  style?: CSSProperties
 }
 
 export function Link(props: LinkProps) {
-  const { children, to } = props
+  const { children, to, style } = props
 
   const navigate = useNavigate()
 
@@ -21,7 +22,7 @@ export function Link(props: LinkProps) {
   )
 
   return (
-    <a href={to} onClick={handleClick}>
+    <a href={to} onClick={handleClick} style={style}>
       {children}
     </a>
   )

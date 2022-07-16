@@ -6,6 +6,7 @@ import {
   Routes,
   Route,
   Link,
+  NavLink,
   Outlet,
   useNavigate,
   useParams,
@@ -73,11 +74,11 @@ export default function RouteGuardExample() {
 function Layout() {
   return (
     <div className={styles.layout}>
-      <Link to="/">首页</Link>
-      <Link to="/product">商品</Link>
-      <Link to="/about">关于</Link>
-      <Link to="/user">用户中心</Link>
-      <Link to="/login">登录</Link>
+      <NavLink to="/">首页</NavLink>
+      <NavLink to="/product">商品</NavLink>
+      <NavLink to="/about">关于</NavLink>
+      <NavLink to="/user">用户中心</NavLink>
+      <NavLink to="/login">登录</NavLink>
 
       <Outlet />
     </div>
