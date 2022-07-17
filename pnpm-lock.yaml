@@ -28,6 +28,7 @@ specifiers:
   react-router-dom: '6'
   redux: ^4.2.0
   redux-logger: ^3.0.6
+  redux-saga: ^1.1.3
   redux-thunk: ^2.4.1
   ts-node: ^10.8.1
   typescript: ^4.6.3
@@ -42,6 +43,7 @@ dependencies:
   react-dom: registry.npmmirror.com/react-dom/18.2.0_react@18.2.0
   react-router-dom: registry.npmmirror.com/react-router-dom/6.3.0_biqbaboplfbrettd7655fr4n2y
   redux: registry.npmmirror.com/redux/4.2.0
+  redux-saga: registry.npmmirror.com/redux-saga/1.1.3
 
 devDependencies:
   '@commitlint/cli': registry.npmmirror.com/@commitlint/cli/17.0.3
@@ -787,6 +789,56 @@ packages:
       '@nodelib/fs.scandir': registry.npmmirror.com/@nodelib/fs.scandir/2.1.5
       fastq: registry.npmmirror.com/fastq/1.13.0
     dev: true
+
+  registry.npmmirror.com/@redux-saga/core/1.1.3:
+    resolution: {integrity: sha512-8tInBftak8TPzE6X13ABmEtRJGjtK17w7VUs7qV17S8hCO5S3+aUTWZ/DBsBJPdE8Z5jOPwYALyvofgq1Ws+kg==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@redux-saga/core/-/core-1.1.3.tgz}
+    name: '@redux-saga/core'
+    version: 1.1.3
+    dependencies:
+      '@babel/runtime': registry.npmmirror.com/@babel/runtime/7.18.6
+      '@redux-saga/deferred': registry.npmmirror.com/@redux-saga/deferred/1.1.2
+      '@redux-saga/delay-p': registry.npmmirror.com/@redux-saga/delay-p/1.1.2
+      '@redux-saga/is': registry.npmmirror.com/@redux-saga/is/1.1.2
+      '@redux-saga/symbols': registry.npmmirror.com/@redux-saga/symbols/1.1.2
+      '@redux-saga/types': registry.npmmirror.com/@redux-saga/types/1.1.0
+      redux: registry.npmmirror.com/redux/4.2.0
+      typescript-tuple: registry.npmmirror.com/typescript-tuple/2.2.1
+    dev: false
+
+  registry.npmmirror.com/@redux-saga/deferred/1.1.2:
+    resolution: {integrity: sha512-908rDLHFN2UUzt2jb4uOzj6afpjgJe3MjICaUNO3bvkV/kN/cNeI9PMr8BsFXB/MR8WTAZQq/PlTq8Kww3TBSQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@redux-saga/deferred/-/deferred-1.1.2.tgz}
+    name: '@redux-saga/deferred'
+    version: 1.1.2
+    dev: false
+
+  registry.npmmirror.com/@redux-saga/delay-p/1.1.2:
+    resolution: {integrity: sha512-ojc+1IoC6OP65Ts5+ZHbEYdrohmIw1j9P7HS9MOJezqMYtCDgpkoqB5enAAZrNtnbSL6gVCWPHaoaTY5KeO0/g==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@redux-saga/delay-p/-/delay-p-1.1.2.tgz}
+    name: '@redux-saga/delay-p'
+    version: 1.1.2
+    dependencies:
+      '@redux-saga/symbols': registry.npmmirror.com/@redux-saga/symbols/1.1.2
+    dev: false
+
+  registry.npmmirror.com/@redux-saga/is/1.1.2:
+    resolution: {integrity: sha512-OLbunKVsCVNTKEf2cH4TYyNbbPgvmZ52iaxBD4I1fTif4+MTXMa4/Z07L83zW/hTCXwpSZvXogqMqLfex2Tg6w==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@redux-saga/is/-/is-1.1.2.tgz}
+    name: '@redux-saga/is'
+    version: 1.1.2
+    dependencies:
+      '@redux-saga/symbols': registry.npmmirror.com/@redux-saga/symbols/1.1.2
+      '@redux-saga/types': registry.npmmirror.com/@redux-saga/types/1.1.0
+    dev: false
+
+  registry.npmmirror.com/@redux-saga/symbols/1.1.2:
+    resolution: {integrity: sha512-EfdGnF423glv3uMwLsGAtE6bg+R9MdqlHEzExnfagXPrIiuxwr3bdiAwz3gi+PsrQ3yBlaBpfGLtDG8rf3LgQQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@redux-saga/symbols/-/symbols-1.1.2.tgz}
+    name: '@redux-saga/symbols'
+    version: 1.1.2
+    dev: false
+
+  registry.npmmirror.com/@redux-saga/types/1.1.0:
+    resolution: {integrity: sha512-afmTuJrylUU/0OtqzaRkbyYFFNgCF73Bvel/sw90pvGrWIZ+vyoIJqA6eMSoA6+nb443kTmulmBtC9NerXboNg==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@redux-saga/types/-/types-1.1.0.tgz}
+    name: '@redux-saga/types'
+    version: 1.1.0
+    dev: false
 
   registry.npmmirror.com/@rollup/pluginutils/4.2.1:
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@rollup/pluginutils/-/pluginutils-4.2.1.tgz}
@@ -4710,6 +4762,14 @@ packages:
       deep-diff: registry.npmmirror.com/deep-diff/0.3.8
     dev: true
 
+  registry.npmmirror.com/redux-saga/1.1.3:
+    resolution: {integrity: sha512-RkSn/z0mwaSa5/xH/hQLo8gNf4tlvT18qXDNvedihLcfzh+jMchDgaariQoehCpgRltEm4zHKJyINEz6aqswTw==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/redux-saga/-/redux-saga-1.1.3.tgz}
+    name: redux-saga
+    version: 1.1.3
+    dependencies:
+      '@redux-saga/core': registry.npmmirror.com/@redux-saga/core/1.1.3
+    dev: false
+
   registry.npmmirror.com/redux-thunk/2.4.1_redux@4.2.0:
     resolution: {integrity: sha512-OOYGNY5Jy2TWvTL1KgAlVy6dcx3siPJ1wTq741EPyUKfn6W6nChdICjZwCd0p8AZBs5kWpZlbkXW2nE/zjUa+Q==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/redux-thunk/-/redux-thunk-2.4.1.tgz}
     id: registry.npmmirror.com/redux-thunk/2.4.1
@@ -5380,6 +5440,28 @@ packages:
     version: 0.8.1
     engines: {node: '>=8'}
     dev: true
+
+  registry.npmmirror.com/typescript-compare/0.0.2:
+    resolution: {integrity: sha512-8ja4j7pMHkfLJQO2/8tut7ub+J3Lw2S3061eJLFQcvs3tsmJKp8KG5NtpLn7KcY2w08edF74BSVN7qJS0U6oHA==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typescript-compare/-/typescript-compare-0.0.2.tgz}
+    name: typescript-compare
+    version: 0.0.2
+    dependencies:
+      typescript-logic: registry.npmmirror.com/typescript-logic/0.0.0
+    dev: false
+
+  registry.npmmirror.com/typescript-logic/0.0.0:
+    resolution: {integrity: sha512-zXFars5LUkI3zP492ls0VskH3TtdeHCqu0i7/duGt60i5IGPIpAHE/DWo5FqJ6EjQ15YKXrt+AETjv60Dat34Q==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typescript-logic/-/typescript-logic-0.0.0.tgz}
+    name: typescript-logic
+    version: 0.0.0
+    dev: false
+
+  registry.npmmirror.com/typescript-tuple/2.2.1:
+    resolution: {integrity: sha512-Zcr0lbt8z5ZdEzERHAMAniTiIKerFCMgd7yjq1fPnDJ43et/k9twIFQMUYff9k5oXcsQ0WpvFcgzK2ZKASoW6Q==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typescript-tuple/-/typescript-tuple-2.2.1.tgz}
+    name: typescript-tuple
+    version: 2.2.1
+    dependencies:
+      typescript-compare: registry.npmmirror.com/typescript-compare/0.0.2
+    dev: false
 
   registry.npmmirror.com/typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typescript/-/typescript-4.7.4.tgz}
