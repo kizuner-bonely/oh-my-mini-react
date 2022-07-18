@@ -1,4 +1,4 @@
-import effectType from './effectType'
+import effectType from './Effect/effectType'
 
 export type EffectType = keyof typeof effectType
 

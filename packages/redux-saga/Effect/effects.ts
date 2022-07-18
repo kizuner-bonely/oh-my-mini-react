@@ -1,4 +1,4 @@
-import type { EffectType, Fn } from './saga.type'
+import type { EffectType, Fn } from '../saga.type'
 import effectType from './effectType'
 import { IO } from './symbol'
 

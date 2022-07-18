@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
-import { IO } from './symbol'
-import effectType from './effectType'
-import { take, put, call, fork } from './effects'
+import { IO } from './Effect/symbol'
+import effectType from './Effect/effectType'
+import { take, put, call, fork } from './Effect/effects'
 
 describe('redux-saga', () => {
   describe('make effect', () => {
