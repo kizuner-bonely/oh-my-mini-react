@@ -1,0 +1,17 @@
+export default {
+  TAKE: 'TAKE' as const,
+  PUT: 'PUT' as const,
+  ALL: 'ALL' as const,
+  RACE: 'RACE' as const,
+  CALL: 'CALL' as const,
+  CPS: 'CPS' as const,
+  FORK: 'FORK' as const,
+  JOIN: 'JOIN' as const,
+  CANCEL: 'CANCEL' as const,
+  SELECT: 'SELECT' as const,
+  ACTION_CHANNEL: 'ACTION_CHANNEL' as const,
+  CANCELLED: 'CANCELLED' as const,
+  FLUSH: 'FLUSH' as const,
+  GET_CONTEXT: 'GET_CONTEXT' as const,
+  SET_CONTEXT: 'SET_CONTEXT' as const,
+}
