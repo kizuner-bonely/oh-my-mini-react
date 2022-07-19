@@ -23,6 +23,8 @@
       "@react-dom/*": ["./packages/react-dom/*"],
       "@form": ["./packages/form"],
       "@form/*": ["./packages/form/*"],
+      "@myFormily": ["./packages/formily"],
+      "@myFormily/*": ["./packages/formily/*"],
       "@redux": ["./packages/redux"],
       "@redux/*": ["./packages/redux/*"],
       "@router": ["./packages/router"],

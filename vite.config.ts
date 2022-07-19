@@ -24,6 +24,7 @@ export default defineConfig({
       '@type': path.resolve(__dirname, './packages/react/types'),
       '@react-dom': path.resolve(__dirname, './packages/react-dom'),
       '@form': path.resolve(__dirname, './packages/form'),
+      '@myFormily': path.resolve(__dirname, './packages/formily'),
       '@redux': path.resolve(__dirname, './packages/redux'),
       '@router': path.resolve(__dirname, './packages/router'),
       '@utils': path.resolve(__dirname, './utils.ts'),
