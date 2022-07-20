@@ -7,6 +7,7 @@ specifiers:
   '@formily/antd': ^2.1.11
   '@formily/core': ^2.1.11
   '@formily/react': ^2.1.11
+  '@formily/reactive': ^2.1.11
   '@formily/reactive-react': ^2.1.11
   '@types/node': ^18.0.6
   '@types/react': ^18.0.15
@@ -50,6 +51,7 @@ dependencies:
   '@formily/antd': registry.npmmirror.com/@formily/antd/2.1.11_gvm7jgqayarwab7irk4626y72y
   '@formily/core': registry.npmmirror.com/@formily/core/2.1.11
   '@formily/react': registry.npmmirror.com/@formily/react/2.1.11_a5ohlwcimlpfj2zil32plclzcm
+  '@formily/reactive': registry.npmmirror.com/@formily/reactive/2.1.11
   '@formily/reactive-react': registry.npmmirror.com/@formily/reactive-react/2.1.11_xpibknw54npmb4aqsqrqeqvkbq
   antd: registry.npmmirror.com/antd/4.21.7_biqbaboplfbrettd7655fr4n2y
   history: registry.npmmirror.com/history/5.3.0
