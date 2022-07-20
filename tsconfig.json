@@ -36,6 +36,6 @@
       "@src/*": ["./src/*"]
     }
   },
-  "include": ["src", "react", "utils.ts"],
+  "include": ["src", "react", "utils.ts", "packages"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
