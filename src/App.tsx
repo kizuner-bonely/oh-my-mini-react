@@ -3,7 +3,7 @@ import { Tabs } from 'antd'
 import type { FiberType } from '@react/types/VnodeType'
 import { ReactDOM } from './which-react'
 import MiniReact from './pages/MiniReact'
-import MyFormily from './pages/MyFormily'
+// import MyFormily from './pages/MyFormily'
 import MyRCFieldForm from './pages/MyRCFieldForm'
 import ReduxExample from './pages/reduxExample/ReduxExample'
 import MyRouterExample from './pages/routerExample/MyRouterExample'
@@ -20,7 +20,7 @@ function App() {
   }, [])
 
   const menuConfig = useRef([
-    { label: 'formily', component: <MyFormily /> },
+    // { label: 'formily', component: <MyFormily /> },
     { label: 'form', component: <MyRCFieldForm /> },
     { label: 'redux', component: <ReduxExample /> },
     { label: 'router', component: <MyRouterExample /> },

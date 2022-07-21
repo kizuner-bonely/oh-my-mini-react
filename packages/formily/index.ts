@@ -7,7 +7,7 @@ import { createForm } from '@formily/core'
 //   useParentForm,
 // } from '@formily/react'
 // import { observer } from '@formily/reactive-react'
-import { observable, Tracker } from '@formily/reactive'
+import { define, observable, Tracker } from '@formily/reactive'
 // import { observer } from '@formily/reactive-react'
 // import { FormItem, Input, Submit } from '@formily/antd'
 
@@ -20,6 +20,7 @@ import {
   useParentForm,
 } from './formily-react'
 import { observer } from './reactive-react'
+// import { createForm } from './core'
 
 export {
   // core
@@ -40,4 +41,5 @@ export {
   FormItem,
   Input,
   Submit,
+  define,
 }
