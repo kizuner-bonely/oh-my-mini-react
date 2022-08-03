@@ -185,5 +185,57 @@ build
 
 以后要调试新的 react 代码，只需要拉取最新代码并重新打包即可。
 
+# debug
+
+## render
+
+**overview**
+
+![2022-08-03 22.01.43](img/3-1-overview.gif)
+
+从总览图可以将 react 的运行分为两大部分，`render` 和 `commit`。
+
+render 用于决定渲染什么；commit 用于将决定渲染的内容真实地渲染到浏览器上。
+
+### mount beginWork
+
+
+
+### mount completeWork
+
+
+
+### update beginWork
+
+
+
+### update completeWork
+
+
+
+## commit
+
+### before mutation
+
+
+
+### mutation
+
+
+
+### layout
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
