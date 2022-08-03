@@ -110,3 +110,80 @@ this.alternate = null;
 React 中每个组件都是一个 Fiber，当然也包括原生节点 ( 需要注意的是 jsx 中写的 div 等原生节点并不完全等同于在 html 中写的 div 等原生节点，React 对它们进行了一层包装 )。
 
 在项目运行时，有的属性会随着项目更新而跟着变化，比如 child、各种副作用、状态等等。
+
+## debug react
+
+为了深入理解 react，调试源码是必须的。
+
+为了调试源码，我们需要源码项目和自创的一个项目，目录结构如下：
+
+![image-20220803211109252](img/2-源码调试目录结构.png)
+
+**源码项目 react-source-code**
+
+1. 拉取源码
+   ```shell
+   git clone https://github.com/facebook/react.git
+   ```
+
+2. 安装依赖
+   ```shell
+   yarn
+   ```
+
+3. 打包
+   ```shell
+   yarn build react/index,react/jsx,react-dom/index,scheduler --type=NODE
+   ```
+
+至此，react 打包产物会放在 build 目录下，其目录结构如下
+
+```
+build
+	- facebook-www
+	- react-native
+	- bundle-sizes.json
+	- node_modules
+    - jest-react
+    - react
+    - react-dom
+    - scheduler
+```
+
+其中 `react` 和 `react-dom` 就是待会我们需要 link 的包。
+
+接下来创建 **react-debug**
+
+1. 创建项目
+   ```shell
+   pnpm create vite react-debug
+   ```
+
+2. 进入项目并安装依赖
+
+   ```shell
+   cd react-debug
+   pnpm i
+   ```
+
+3. link react 的打包产物
+   ```shell
+   pnpm link ../react-source-code/build/node_modules/react
+   pnpm link ../react-source-code/build/node_modules/react-dom
+   ```
+
+4. 启动项目
+   ```shell
+   pnpm run dev
+   ```
+
+   
+
+为了验证有没有 link 成功，我们在 `react-dom/cjs/react-dom.development.js` 中添加一个打印语句 `console.log('abc')`
+
+如果启动的项目的控制台有打印 abc，说明 link 成功了。
+
+以后要调试新的 react 代码，只需要拉取最新代码并重新打包即可。
+
+
+
