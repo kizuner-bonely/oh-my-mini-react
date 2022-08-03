@@ -197,6 +197,79 @@ build
 
 render 用于决定渲染什么；commit 用于将决定渲染的内容真实地渲染到浏览器上。
 
+**重要的调用节点可作如下简单总结**
+
+```
+创建项目根节点
+	1.createRoot()
+	2.ReactDOMRoot.render()
+	3.updateContainer()
+	
+render
+	1.scheduleUpdateOnFiber()
+	2.ensureRootIsScheduled()
+	3.performWorkUntilDeadline()
+	4.flushWork()
+	5.workLoop()
+	6.performConcurrentWorkOnRoot()
+	7.renderRootSync()
+	8.workLoopSync()
+	9.performUnitOfWork()
+
+	10.beginWork()
+	11.updateHostComponent()
+	12.reconcileChildren()
+	13.reconcileChildFibers2()
+	14.reconcileChildrenArray()
+	15.createChild()
+	16.createFiberFromElement()
+	17.createFiberFromTypeAndProps()
+	18.createFiber
+
+	19.completeUnitOfWork()
+	20.completeWork()
+
+commit
+	1.commitRoot()
+	2.commitRootImpl()
+```
+
+注意，这里列出来的调用顺序并不是每个项目都会严格按照这个顺序来，像 beginWork 和 completeWork 会根据渲染节点的多少来决定执行多少次。
+
+同时这里也没有列出所有的调用方法，这里只是将研究源码时经常会用到的方法列出来，此时记不住也没关系，只要混个脸熟就行，后面讲到相关内容时会详解。
+
+
+
+接下来我们会用如下组件进行演示:
+
+```tsx
+import { useState } from 'react'
+import './App.css'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div className="App">
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount(count => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </div>
+  )
+}
+
+export default App
+```
+
 ### mount beginWork
 
 
