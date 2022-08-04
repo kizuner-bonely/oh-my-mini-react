@@ -272,6 +272,161 @@ export default App
 
 ### mount beginWork
 
+启动项目，在控制台的 `source` 中打开 `react-dom`，搜索 `beginWork` 和 `completeWork` 方法并打上断点。
+
+首先确认 Fiber 的构建流程。
+
+```
+HostRoot beginWork
+	App beginWork
+		div beginWork
+      h1 beginWork
+      h1 completeWork
+
+      div beginWork
+        button beginWork
+          TextNode(count is) beginWork
+          TextNode(count is) completeWork
+
+          TextNode(0) beginWork
+          TextNode(0) completeWork
+        button completeWork
+
+        p beginWork
+          TextNode(Edit ) beginWork
+          TextNode(Edit ) completeWork
+
+          code beginWork
+          code completeWork
+
+          TextNode( and save to test HMR) beginWork
+          TextNode( and save to test HMR) completeWork
+        p completeWork
+      div completeWork
+
+      p beginWork
+      p completeWork
+    div completeWork
+  App completeWork
+HostRoot completeWork
+   
+```
+
+需要注意的是如果一个节点的子节点只有唯一一个文本子节点，则该文本节点不会单独生成一个 Fiber，如：
+
+```tsx
+<code>src/App.tsx</code>
+```
+
+如果子节点中有插值变量，那还是会生成对应的 Fiber，如
+
+```tsx
+<button onClick={() => setCount(count => count + 1)}>
+  count is {count}
+</button>
+```
+
+
+
+接下来，我们从 `div#App` 来深究一下 `beginWork` 究竟做了什么。
+
+![image-20220804221633191](img/4-1-mountBeginWork.png)
+
+通过上文介绍的双缓存架构，我们可以得知在首屏渲染时，当前构建 Fiber 的 `current` 肯定为 null，因此红色部分是给更新用的，而蓝色部分是关于服务端渲染的，这里先略过。
+
+![image-20220804222048554](img/4-2-beginWorkUpdateHostComponent.png)
+
+由于此处的视角为 `div#App`，它的 tag 为 `HostComponent`，因此进入 `updateHostComponent` 的逻辑。
+
+对于一个 Fiber，我们通过 tag 进行作用区分，完整的 tag 可以搜索 `ReactWorkTags.js` 进行查阅。
+
+```js
+export const FunctionComponent = 0;
+export const ClassComponent = 1;
+export const IndeterminateComponent = 2; // Before we know whether it is function or class
+export const HostRoot = 3; // Root of a host tree. Could be nested inside another node.
+export const HostPortal = 4; // A subtree. Could be an entry point to a different renderer.
+export const HostComponent = 5;
+export const HostText = 6;
+export const Fragment = 7;
+export const Mode = 8;
+export const ContextConsumer = 9;
+export const ContextProvider = 10;
+export const ForwardRef = 11;
+export const Profiler = 12;
+export const SuspenseComponent = 13;
+export const MemoComponent = 14;
+export const SimpleMemoComponent = 15;
+export const LazyComponent = 16;
+export const IncompleteClassComponent = 17;
+export const DehydratedFragment = 18;
+export const SuspenseListComponent = 19;
+export const ScopeComponent = 21;
+export const OffscreenComponent = 22;
+export const LegacyHiddenComponent = 23;
+export const CacheComponent = 24;
+export const TracingMarkerComponent = 25;
+```
+
+**updateHostComponent**
+
+![image-20220804222503949](img/4-3-updateHostComponent.png)
+
+通过观察 `updateHostComponent` 可以看到 HostComponent 在此处进行属性的更新。
+
+其中，`isDirectTextChild` 就是上文提到的优化路径，如果一个节点只有唯一一个文本子节点，则该文本子节点不会生成一个 Fiber，而是通过挂载到父节点的 `innerText` 进行渲染。
+
+再接下来，重点是 `reconcileChildren`，它的作用是生成当前节点的下一个子节点。
+
+注意，就算一个节点有多个子节点，`reconcileChildren` 也只会生成第一子节点。
+
+兄弟节点通过 `sibling` 进行连接 ( 第一个子节点通过 sibling 指向第二个子节点，以此类推 )。
+
+**reconcileChildren**
+
+```ts
+export function reconcileChildren(
+  current: Fiber | null,
+  workInProgress: Fiber,
+  nextChildren: any,
+  renderLanes: Lanes,
+) {
+  if (current === null) {
+    // If this is a fresh new component that hasn't been rendered yet, we
+    // won't update its child set by applying minimal side-effects. Instead,
+    // we will add them all to the child before it gets rendered. That means
+    // we can optimize this reconciliation pass by not tracking side-effects.
+    workInProgress.child = mountChildFibers(
+      workInProgress,
+      null,
+      nextChildren,
+      renderLanes,
+    );
+  } else {
+    // If the current child is the same as the work in progress, it means that
+    // we haven't yet started any work on these children. Therefore, we use
+    // the clone algorithm to create a copy of all the current children.
+
+    // If we had any progressed work already, that is invalid at this point so
+    // let's throw it out.
+    workInProgress.child = reconcileChildFibers(
+      workInProgress,
+      current.child,
+      nextChildren,
+      renderLanes,
+    );
+  }
+}
+```
+
+由于此时是首屏渲染，因此此刻 `current` 为 `null`，进入 `mountChildFibers`。
+
+之后的工作都是为了对 workInProgress Fiber 进行赋值之类的操作，对于理解 React 我们可以暂时先探索到这。
+
+![image-20220804224137076](img/4-4-beginWorkCallStack.png)
+
+( 此处的 `reconcileChildFibers2` 就是 `mountChildFibers` )
+
 
 
 ### mount completeWork
