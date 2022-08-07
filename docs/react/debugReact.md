@@ -431,6 +431,196 @@ export function reconcileChildren(
 
 ### mount completeWork
 
+在本文的 demo 中首先进入 completeWork 的节点是 h1，接下来就从 h1 的视角探索 completeWork 的内容。
+
+`ReactFiberCompleteWork.old.js`
+
+```ts
+function completeWork(
+current: Fiber | null,
+ workInProgress: Fiber,
+ renderLanes: Lanes,
+): Fiber | null {
+  // ...
+  switch (workInProgress.tag) {
+    case IndeterminateComponent:
+    case LazyComponent:
+    case SimpleMemoComponent:
+    case FunctionComponent:
+    case ForwardRef:
+    case Fragment:
+    case Mode:
+    case Profiler:
+    case ContextConsumer:
+    case MemoComponent:
+      bubbleProperties(workInProgress);
+      return null;
+    case HostComponent: {
+      popHostContext(workInProgress);
+      const type = workInProgress.type;
+      if (current !== null && workInProgress.stateNode != null) {
+        updateHostComponent(current, workInProgress, type, newProps);
+
+        if (current.ref !== workInProgress.ref) {
+          markRef(workInProgress);
+        }
+      } else {
+        if (!newProps) {
+          if (workInProgress.stateNode === null) {
+            throw new Error(
+              'We must have new props for new mounts. This error is likely ' +
+              'caused by a bug in React. Please file an issue.',
+            );
+          }
+
+          // This can happen when we abort work.
+          bubbleProperties(workInProgress);
+          return null;
+        }
+
+        const currentHostContext = getHostContext();
+        // TODO: Move createInstance to beginWork and keep it on a context
+        // "stack" as the parent. Then append children as we go in beginWork
+        // or completeWork depending on whether we want to add them top->down or
+        // bottom->up. Top->down is faster in IE11.
+        const wasHydrated = popHydrationState(workInProgress);
+        if (wasHydrated) {
+          // TODO: Move this and createInstance step into the beginPhase
+          // to consolidate.
+          if (
+            prepareToHydrateHostInstance(workInProgress, currentHostContext)
+          ) {
+            // If changes to the hydrated node need to be applied at the
+            // commit-phase we mark this as such.
+            markUpdate(workInProgress);
+          }
+        } else {
+          const rootContainerInstance = getRootHostContainer();
+          const instance = createInstance(
+            type,
+            newProps,
+            rootContainerInstance,
+            currentHostContext,
+            workInProgress,
+          );
+
+          appendAllChildren(instance, workInProgress, false, false);
+
+          workInProgress.stateNode = instance;
+
+          // Certain renderers require commit-time effects for initial mount.
+          // (eg DOM renderer supports auto-focus for certain elements).
+          // Make sure such renderers get scheduled for later work.
+          if (
+            finalizeInitialChildren(
+              instance,
+              type,
+              newProps,
+              currentHostContext,
+            )
+          ) {
+            markUpdate(workInProgress);
+          }
+        }
+
+        if (workInProgress.ref !== null) {
+          // If there is a ref on a host node we need to schedule a callback
+          markRef(workInProgress);
+        }
+      }
+      bubbleProperties(workInProgress);
+      return null;
+    }
+  }
+  // ...
+}
+```
+
+由于 h1 属于原生节点，因此会进入处理 `hostComponent` 的分支。
+
+在这些处理方法中，重点需要关注的是创建真实 DOM 节点和将 DOM 节点挂载到父 DOM 的过程，它们分别对应
+
+```ts
+// 创建真实 DOM 节点
+const rootContainerInstance = getRootHostContainer();
+const instance = createInstance(
+  type,
+  newProps,
+  rootContainerInstance,
+  currentHostContext,
+  workInProgress,
+);
+
+// 将创建的 DOM 节点添加到父 DOM
+appendAllChildren(instance, workInProgress, false, false);
+```
+
+`createInstance()`
+
+```js
+): Instance {
+  // ...
+  const domElement: Instance = createElement(
+    type,
+    props,
+    rootContainerInstance,
+    parentNamespace,
+  );
+  precacheFiberNode(internalInstanceHandle, domElement);
+  updateFiberProps(domElement, props);
+  return domElement;
+}
+```
+
+可以看到 `createInstance` 的核心是 `createElement()`。
+
+`appendAllChildren()`
+
+```ts
+appendAllChildren = function(
+ parent: Instance,
+ workInProgress: Fiber,
+ needsVisibilityToggle: boolean,
+ isHidden: boolean,
+) {
+  // We only have the top Fiber that was created but we need recurse down its
+  // children to find all the terminal nodes.
+  let node = workInProgress.child;
+  while (node !== null) {
+    if (node.tag === HostComponent || node.tag === HostText) {
+      appendInitialChild(parent, node.stateNode);
+    } else if (node.tag === HostPortal) {
+      // If we have a portal child, then we don't want to traverse
+      // down its children. Instead, we'll get insertions from each child in
+      // the portal directly.
+    } else if (node.child !== null) {
+      node.child.return = node;
+      node = node.child;
+      continue;
+    }
+    if (node === workInProgress) {
+      return;
+    }
+    while (node.sibling === null) {
+      if (node.return === null || node.return === workInProgress) {
+        return;
+      }
+      node = node.return;
+    }
+    node.sibling.return = node.return;
+    node = node.sibling;
+  }
+};
+```
+
+生成好的 DOM 节点会挂载在 Fiber 的 stateNode 属性上
+
+```ts
+workInProgress.stateNode = instance;
+```
+
+待 App 执行 completeWork 之后，我们就能得到一棵完整的 DOM 树。
+
 
 
 ### update beginWork
